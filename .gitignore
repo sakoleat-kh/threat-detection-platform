@@ -23,6 +23,10 @@ dist/
 # Logs
 *.log
 
+!data/sample_logs/
+!data/sample_logs/auth_sample.log
+!data/sample_logs/access_sample.log
+
 # Testing
 .pytest_cache/
 
