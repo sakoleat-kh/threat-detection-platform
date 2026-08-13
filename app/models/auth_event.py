@@ -5,7 +5,7 @@ from typing import Optional
 class EventType(Enum):
     SSH_FAILED_PASSWORD = "ssh_failed_password"
     SSH_ACCEPTED_PASSWORD = "ssh_accepted_password"
-    SSH_INVALID_KEY = "ssh_invalid_key"
+    SSH_INVALID_USER = "ssh_invalid_user"
     SUDO_COMMAND = "sudo_command"
     SUDO_AUTH_FAILED = "sudo_auth_failed"
     USER_LOGIN = "user_login"
