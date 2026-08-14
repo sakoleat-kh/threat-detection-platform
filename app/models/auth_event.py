@@ -22,6 +22,8 @@ class AuthLogEvent:
     username: Optional[str]
     source_ip: Optional[str]
     port: Optional[int]
+    command: Optional[str]
+    target_user: Optional[str]
 
 if __name__ == "__main__":
     event = AuthLogEvent(
@@ -39,5 +41,7 @@ if __name__ == "__main__":
         username="admin",
         source_ip="192.168.1.15",
         port=51234,
+        command=None,
+        target_user=None,
     )
     print(event)

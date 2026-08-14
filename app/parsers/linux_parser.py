@@ -41,6 +41,19 @@ INVALID_USER_PATTERN = re.compile(
     r"(?P<port>\d+)"
 )
 
+SUDO_COMMAND_PATTERN = re.compile(
+    r"^(?P<user>\S+)\s*:\s+"
+    r"TTY=(?P<tty>[^;]+)\s*;\s+"
+    r"PWD=(?P<pwd>[^;]+)\s*;\s+"
+    r"USER=(?P<runas_user>\S+)\s*;\s+"
+    r"COMMAND=(?P<command>.*)$"
+)
+
+SUDO_AUTH_FAILURE_PATTERN = re.compile(
+    r"^pam_unix\(sudo:auth\): authentication failure.*$"
+)
+
+
 def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
     """
     Parse one Linux auth.log line.
@@ -53,7 +66,6 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
     raw_line = raw_line.rstrip("\n")
 
     base_match = BASE_SYSLOG_PATTERN.match(raw_line)
-
     if not base_match:
         return None
 
@@ -64,7 +76,6 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
 
 
     match = FAILED_PASSWORD_PATTERN.match(message)
-
     if match:
         data = match.groupdict()
 
@@ -78,6 +89,8 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
             username = data["username"],
             source_ip = data["source_ip"],
             port = int(data["port"]),
+            command=None,
+            target_user=None,
         )
 
     match = ACCEPTED_PASSWORD_PATTERN.match(message)
@@ -94,10 +107,11 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
             username = data["username"],
             source_ip = data["source_ip"],
             port = int(data["port"]),
+            command=None,
+            target_user=None,
         )
 
     match = INVALID_USER_PATTERN.match(message)
-
     if match:
         data = match.groupdict()
 
@@ -111,6 +125,42 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
             username = data["username"],
             source_ip = data["source_ip"],
             port = int(data["port"]),
+            command=None,
+            target_user=None,
+        )
+
+    match = SUDO_COMMAND_PATTERN.match(message)
+    if match:
+        data = match.groupdict()
+
+        return AuthLogEvent(
+            raw_line=raw_line,
+            timestamp=f"{base['month']} {base['day']} {base['time']}",
+            host=base["host"],
+            process=base["process"],
+            pid=pid,
+            event_type=EventType.SUDO_COMMAND,
+            username=data["user"],
+            source_ip=None,
+            port=None,
+            command=data["command"],
+            target_user=data["runas_user"],
+        )
+
+    match = SUDO_AUTH_FAILURE_PATTERN.match(message)
+    if match:
+        return AuthLogEvent(
+            raw_line=raw_line,
+            timestamp=f"{base['month']} {base['day']} {base['time']}",
+            host=base["host"],
+            process=base["process"],
+            pid=pid,
+            event_type=EventType.SUDO_AUTH_FAILURE,
+            username=None,
+            source_ip=None,
+            port=None,
+            command=None,
+            target_user=None,
         )
 
     return AuthLogEvent(
@@ -123,6 +173,8 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
         username = None,
         source_ip = None,
         port = None,
+        command=None,
+        target_user=None,
     )
 
 if __name__ == "__main__":

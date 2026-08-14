@@ -102,3 +102,26 @@ Observation:
 - sudo events record privilege escalation after a user authenticates.
 - CRON events are routine scheduled jobs and are usually expected.
 - Process IDs (for example, sshd[2543]) help distinguish different instances of the same service.
+
+
+## Sudo Events 
+### SUDO_COMMAND 
+
+Observed sudo command events contain:
+
+- user
+- TTY
+- PWD
+- USER (target user)
+- COMMAND
+
+example commands observed:
+- `/usr/bin/curl -L -0 ...`
+- `/usr/bin/apt-key add -`
+- `/usr/bin/apt-get install apt-transport-https`
+- `/usr/bin/tee -a /etc/apt/sources.list.d/elastic-5x.xlist`
+
+### SUDO_AUTH_FAILURE
+
+Search result:
+- No sudo authentication failure line found in the current sample.
