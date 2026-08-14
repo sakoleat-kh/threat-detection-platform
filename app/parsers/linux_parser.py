@@ -50,6 +50,8 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
     
     """
 
+    raw_line = raw_line.rstrip("\n")
+
     base_match = BASE_SYSLOG_PATTERN.match(raw_line)
 
     if not base_match:
