@@ -102,109 +102,16 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
     pid = int(base["pid"]) if base["pid"] is not None else None
     message = base["message"]
 
+    for pattern, handler in PATTERN_REGISTRY:
+        match = pattern.match(message)
 
-    match = FAILED_PASSWORD_PATTERN.match(message)
-    if match:
-        data = match.groupdict()
-
-        return AuthLogEvent(
-            raw_line = raw_line,
-            timestamp = timestamp,
-            host = base["host"],
-            process = base["process"],
-            pid = pid,
-            event_type = EventType.SSH_FAILED_PASSWORD,
-            username = data["username"],
-            source_ip = data["source_ip"],
-            port = int(data["port"]),
-            command=None,
-            target_user=None,
-            uid=None,
-            gid=None,
-            home_dir=None,
-        )
-
-    match = ACCEPTED_PASSWORD_PATTERN.match(message)
-    if match:
-        data = match.groupdict()
-
-        return AuthLogEvent(
-            raw_line = raw_line,
-            timestamp = timestamp,
-            host = base["host"],
-            process = base["process"],
-            pid = pid,
-            event_type = EventType.SSH_ACCEPTED_PASSWORD,
-            username = data["username"],
-            source_ip = data["source_ip"],
-            port = int(data["port"]),
-            command=None,
-            target_user=None,
-            uid=None,
-            gid=None,
-            home_dir=None,
-        )
-
-    match = INVALID_USER_PATTERN.match(message)
-    if match:
-        data = match.groupdict()
-
-        return AuthLogEvent(
-            raw_line = raw_line,
-            timestamp=timestamp,
-            host = base["host"],
-            process = base["process"],
-            pid = pid,
-            event_type = EventType.SSH_INVALID_USER,
-            username = data["username"],
-            source_ip = data["source_ip"],
-            port = int(data["port"]),
-            command=None,
-            target_user=None,
-            uid=None,
-            gid=None,
-            home_dir=None,
-        )
-
-    match = SUDO_COMMAND_PATTERN.match(message)
-    if match:
-        data = match.groupdict()
-
-        return AuthLogEvent(
-            raw_line=raw_line,
-            timestamp=timestamp,
-            host=base["host"],
-            process=base["process"],
-            pid=pid,
-            event_type=EventType.SUDO_COMMAND,
-            username=data["user"],
-            source_ip=None,
-            port=None,
-            command=data["command"],
-            target_user=data["runas_user"],
-            uid=None,
-            gid=None,
-            home_dir=None,
-        )
-
-    match = SUDO_AUTH_FAILURE_PATTERN.match(message)
-    if match:
-        return AuthLogEvent(
-            raw_line=raw_line,
-            timestamp=timestamp,
-            host=base["host"],
-            process=base["process"],
-            pid=pid,
-            event_type=EventType.SUDO_AUTH_FAILURE,
-            username=None,
-            source_ip=None,
-            port=None,
-            command=None,
-            target_user=None,
-            uid=None,
-            gid=None,
-            home_dir=None,
-        )
+        if match:
+            return handler(
+                base=base,
+                raw_line=raw_line,
+                match=match,
+                timestamp=timestamp
+            )
 
     match = USER_ADDED_PATTERN.match(message)
     if match:
@@ -243,6 +150,133 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
         gid=None,
         home_dir=None,
     )
+
+def handle_failed_password(base, raw_line, match, timestamp):
+    data = match.groupdict()
+
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base["pid"] else None,
+        event_type=EventType.SSH_FAILED_PASSWORD,
+        username=data["username"],
+        source_ip=data["source_ip"],
+        port=int(data["port"]),
+        command=None,
+        target_user=None,
+        uid=None,
+        gid=None,
+        home_dir=None,
+    )
+
+def handle_accepted_password(base, raw_line, match, timestamp):
+    data = match.groupdict()
+
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base["pid"] else None,
+        event_type=EventType.SSH_ACCEPTED_PASSWORD,
+        username=data["username"],
+        source_ip=data["source_ip"],
+        port=int(data["port"]),
+        command=None,
+        target_user=None,
+        uid=None,
+        gid=None,
+        home_dir=None,
+    )
+
+def handle_invalid_user(base, raw_line, match, timestamp):
+    data = match.groupdict()
+
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base["pid"] else None,
+        event_type=EventType.SSH_INVALID_USER,
+        username=data["username"],
+        source_ip=data["source_ip"],
+        port=int(data["port"]),
+        command=None,
+        target_user=None,
+        uid=None,
+        gid=None,
+        home_dir=None,
+    )
+
+def handle_sudo_command(base, raw_line, match, timestamp):
+    data = match.groupdict()
+
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base["pid"] else None,
+        event_type=EventType.SUDO_COMMAND,
+        username=data["user"],
+        source_ip=None,
+        port=None,
+        command=data["command"],
+        target_user=data["runas_user"],
+        uid=None,
+        gid=None,
+        home_dir=None,
+    )
+
+def handle_sudo_auth_failure(base, raw_line, match, timestamp):
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base ["pid"] else None,
+        event_type=EventType.SUDO_AUTH_FAILURE,
+        username=None,
+        source_ip=None,
+        port=None,
+        command=None,
+        target_user=None,
+        uid=None,
+        gid=None,
+        home_dir=None,
+    )
+
+def handle_user_added(base, raw_line, match, timestamp):
+    data = match.groupdict()
+
+    return AuthLogEvent(
+        raw_line=raw_line,
+        timestamp=timestamp,
+        host=base["host"],
+        process=base["process"],
+        pid=int(base["pid"]) if base["pid"] else None,
+        event_type=EventType.USER_ADDED,
+        username=data["username"],
+        source_ip=None,
+        port=None,
+        command=None,
+        target_user=None,
+        uid=int(data["uid"]),
+        gid=int(data["gid"]),
+        home_dir=data["home_dir"],
+    )
+
+PATTERN_REGISTRY = [
+    (FAILED_PASSWORD_PATTERN, handle_failed_password),
+    (ACCEPTED_PASSWORD_PATTERN, handle_accepted_password),
+    (INVALID_USER_PATTERN, handle_invalid_user),
+    (SUDO_COMMAND_PATTERN, handle_sudo_command),
+    (SUDO_AUTH_FAILURE_PATTERN, handle_sudo_auth_failure),
+    (USER_ADDED_PATTERN, handle_user_added),
+]
 
 if __name__ == "__main__":
 

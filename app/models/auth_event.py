@@ -7,7 +7,7 @@ class EventType(Enum):
     SSH_ACCEPTED_PASSWORD = "ssh_accepted_password"
     SSH_INVALID_USER = "ssh_invalid_user"
     SUDO_COMMAND = "sudo_command"
-    SUDO_AUTH_FAILED = "sudo_auth_failed"
+    SUDO_AUTH_FAILURE = "sudo_auth_failed"
     USER_LOGIN = "user_login"
     USER_ADDED = "user_added"
     UNKNOWN = "unknown"
