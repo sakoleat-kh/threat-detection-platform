@@ -1,7 +1,10 @@
 import re
+from datetime import datetime
 from typing import Optional
 
 from app.models.auth_event import AuthLogEvent, EventType
+from app.parsers.timestamp_utils import resolve_syslog_timestamp
+
 
 BASE_SYSLOG_PATTERN = re.compile(
     r"^(?P<month>[A-Z][a-z]{2})\s+"
@@ -75,7 +78,7 @@ USER_ADDED_PATTERN = re.compile(
 )
 
 
-def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
+def parse_line(raw_line: str, reference_date: datetime) -> Optional[AuthLogEvent]:
     """
     Parse one Linux auth.log line.
     Returns:
@@ -89,7 +92,12 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
     base_match = BASE_SYSLOG_PATTERN.match(raw_line)
     if base_match:
         base = base_match.groupdict()
-        timestamp = f"{base['month']} {base['day']} {base['time']}"
+        timestamp = resolve_syslog_timestamp(
+            base["month"],
+            base["day"],
+            base["time"],
+            reference_date,
+        )
     else:
         iso_match = ISO_SYSLOG_PATTERN.match(raw_line)
 
@@ -97,7 +105,7 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
             return None
 
         base = iso_match.groupdict()
-        timestamp = base["timestamp"]
+        timestamp = datetime.fromisoformat(base["timestamp"])
 
     pid = int(base["pid"]) if base["pid"] is not None else None
     message = base["message"]
@@ -112,27 +120,6 @@ def parse_line(raw_line: str) -> Optional[AuthLogEvent]:
                 match=match,
                 timestamp=timestamp
             )
-
-    match = USER_ADDED_PATTERN.match(message)
-    if match:
-        data = match.groupdict()
-
-        return AuthLogEvent(
-            raw_line=raw_line,
-            timestamp=timestamp,
-            host=base["host"],
-            process=base["process"],
-            pid=pid,
-            event_type=EventType.USER_ADDED,
-            username=data["username"],
-            source_ip=None,
-            port=None,
-            command=None,
-            target_user=None,
-            uid=int(data["uid"]),
-            gid=int(data["gid"]),
-            home_dir=data["home_dir"],
-        )
 
     return AuthLogEvent(
         raw_line = raw_line,
@@ -280,6 +267,8 @@ PATTERN_REGISTRY = [
 
 if __name__ == "__main__":
 
+    reference_date = datetime(2026, 8, 16)
+
     sample_lines = [
         "Aug  6 09:15:22 ubuntu sshd[2543]: Failed password for invalid user admin from 192.168.1.15 port 51234 ssh2",
         "Aug  6 09:16:22 ubuntu sshd[2544]: Accepted password for sakol from 192.168.1.20 port 41234 ssh2",
@@ -290,5 +279,5 @@ if __name__ == "__main__":
     ]
 
     for line in sample_lines:
-        event = parse_line(line)
+        event = parse_line(line, reference_date)
         print(event)

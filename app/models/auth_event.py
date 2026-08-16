@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -15,7 +16,7 @@ class EventType(Enum):
 @dataclass
 class AuthLogEvent:
     raw_line: str
-    timestamp: str
+    timestamp: datetime
     host: str
     process: str
     pid: Optional[int]
@@ -37,7 +38,7 @@ if __name__ == "__main__":
             "Failed password for invalid user admin "
             "from 192.168.1.15 port 51234 ssh2"
         ),
-        timestamp="Aug 6 09:15:22",
+        timestamp=datetime("2026,8, 6, ,9, 15, 22"),
         host="ubuntu",
         process="sshd",
         pid=2543,
