@@ -9,6 +9,7 @@ class EventType(Enum):
     SUDO_COMMAND = "sudo_command"
     SUDO_AUTH_FAILED = "sudo_auth_failed"
     USER_LOGIN = "user_login"
+    USER_ADDED = "user_added"
     UNKNOWN = "unknown"
 
 @dataclass
@@ -24,6 +25,9 @@ class AuthLogEvent:
     port: Optional[int]
     command: Optional[str]
     target_user: Optional[str]
+    uid: Optional[int]
+    gid: Optional[int]
+    home_dir: Optional[str]
 
 if __name__ == "__main__":
     event = AuthLogEvent(

@@ -50,3 +50,21 @@ def test_garbage_line_returns_none():
     event = parse_line(line)
 
     assert event is None
+
+
+def test_user_added():
+    line = (
+        "2026-08-16T12:47:46.043193+00:00 Sakol "
+        "useradd[13106]: new user: name=day9_test, UID=1001, "
+        "GID=1002, home=/home/day9_test, shell=/bin/sh, from=/dev/pts/11"
+    )
+
+    event = parse_line(line)
+
+    assert event is not None
+    assert event.event_type == EventType.USER_ADDED
+    assert event.username == "day9_test"
+    assert event.uid == 1001
+    assert event.gid == 1002
+    assert event.home_dir == "/home/day9_test"
+
