@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from typing import Optional
@@ -5,6 +6,7 @@ from typing import Optional
 from app.models.auth_event import AuthLogEvent, EventType
 from app.parsers.timestamp_utils import resolve_syslog_timestamp
 
+logger = logging.getLogger(__name__)
 
 BASE_SYSLOG_PATTERN = re.compile(
     r"^(?P<month>[A-Z][a-z]{2})\s+"
@@ -92,12 +94,38 @@ def parse_line(raw_line: str, reference_date: datetime) -> Optional[AuthLogEvent
     base_match = BASE_SYSLOG_PATTERN.match(raw_line)
     if base_match:
         base = base_match.groupdict()
-        timestamp = resolve_syslog_timestamp(
-            base["month"],
-            base["day"],
-            base["time"],
-            reference_date,
-        )
+        try:
+            timestamp = resolve_syslog_timestamp(
+                base["month"],
+                base["day"],
+                base["time"],
+                reference_date,
+            )
+
+        except ValueError as exc:
+            logger.warning(
+                "Invalid syslog timestamp: %s (%s)",
+                raw_line,
+                exc,
+            )
+
+            return AuthLogEvent(
+                raw_line=raw_line,
+                timestamp=reference_date,
+                host=base["host"],
+                process=base["process"],
+                pid=int(base["pid"]) if base["pid"] else None,
+                event_type=EventType.UNKNOWN,
+                username=None,
+                source_ip=None,
+                port=None,
+                command=None,
+                target_user=None,
+                uid=None,
+                gid=None,
+                home_dir=None,
+            )
+
     else:
         iso_match = ISO_SYSLOG_PATTERN.match(raw_line)
 
@@ -105,8 +133,32 @@ def parse_line(raw_line: str, reference_date: datetime) -> Optional[AuthLogEvent
             return None
 
         base = iso_match.groupdict()
-        timestamp = datetime.fromisoformat(base["timestamp"])
+        try:
+            timestamp = datetime.fromisoformat(base["timestamp"])
 
+        except ValueError as exc:
+            logger.warning(
+                "Invalid ISO timestamp: %s (%s)",
+                raw_line,
+                exc,
+            )
+
+            return AuthLogEvent(
+                raw_line=raw_line,
+                timestamp=reference_date,
+                host=base["host"],
+                process=base["process"],
+                pid=int(base["pid"]) if base["pid"] else None,
+                event_type=EventType.UNKNOWN,
+                username=None,
+                source_ip=None,
+                port=None,
+                command=None,
+                target_user=None,
+                uid=None,
+                gid=None,
+                home_dir=None,
+            )
     pid = int(base["pid"]) if base["pid"] is not None else None
     message = base["message"]
 

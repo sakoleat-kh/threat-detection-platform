@@ -1,0 +1,10 @@
+Aug 6
+this is completely garbage
+Aug 99 99:99:99 ubuntu sshd[1234]: Failed password for admin from 192.168.1.10 port 22
+Aug 6 09:15:22 ubuntu sshd[abc]: Failed password for admin from 192.168.1.10 port 22
+Aug 6 09:15:22 ubuntu sshd[1234]: Failed password for 192.168.1.10 port abc
+Aug 6 09:15:22 ubuntu sshd[1234]: Failed password for from 192.168.1.10 port 22
+Aug 6 09:15:22 ubuntu sshd[1234]: Accepted password for admin from port 22
+2026-99-99T99:99:99+00:00 ubuntu sshd[1234]: Failed password for admin from 192.168.1.10 port 22
+2026-08-16T12:47:46+00:00 ubuntu useradd[1234]: new user: name=alice, UID=abc, GID=1001, home=/home/alice
+Aug 6 09:15:22
