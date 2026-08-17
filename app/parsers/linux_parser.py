@@ -1,3 +1,5 @@
+"""Parse Linux auth.log entries into structured authtication events."""
+
 import logging
 import re
 from datetime import datetime

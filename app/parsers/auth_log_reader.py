@@ -1,3 +1,5 @@
+"""Stream and parse Linux auth.log files into structured events."""
+
 from datetime import datetime
 from pathlib import Path
 from typing import Iterator

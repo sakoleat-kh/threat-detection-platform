@@ -89,3 +89,40 @@ def test_december_january_year_rollover():
     assert event is not None
     assert event.event_type == EventType.SSH_FAILED_PASSWORD
     assert event.timestamp == datetime(2026, 12, 31, 23, 30, 0)
+
+def test_sudo_command():
+    line = (
+        "Aug 6 09:20:00 ubuntu sudo: "
+        "sakol : TTY=pts/0 ; PWD=/home/sakol ; "
+        "USER=root ; COMMAND=/usr/bin/whoami"
+    )
+
+    event = parse_line(line, REFERENCE_DATE)
+
+    assert event is not None
+    assert event.event_type == EventType.SUDO_COMMAND
+    assert event.username == "sakol"
+    assert event.target_user == "root"
+    assert event.command == "/usr/bin/whoami"
+
+def test_sudo_auth_failure():
+    line = (
+        "Aug 6 09:21:00 ubuntu sudo: "
+        "pam_unix(sudo:auth): authentication failure"
+    )
+
+    event = parse_line(line, REFERENCE_DATE)
+
+    assert event is not None
+    assert event.event_type == EventType.SUDO_AUTH_FAILURE
+
+def test_unknown_event():
+    line = (
+        "Aug 6 09:22:00 ubuntu sshd[9999]: "
+        "Some completely unknown SSH event"
+    )
+
+    event = parse_line(line, REFERENCE_DATE)
+
+    assert event is not None
+    assert event.event_type ==  EventType.UNKNOWN

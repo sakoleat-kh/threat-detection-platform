@@ -38,7 +38,7 @@ if __name__ == "__main__":
             "Failed password for invalid user admin "
             "from 192.168.1.15 port 51234 ssh2"
         ),
-        timestamp=datetime("2026,8, 6, ,9, 15, 22"),
+        timestamp=datetime(2026,8, 6, 9, 15, 22),
         host="ubuntu",
         process="sshd",
         pid=2543,

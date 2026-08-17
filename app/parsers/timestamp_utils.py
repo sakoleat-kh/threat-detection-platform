@@ -1,3 +1,5 @@
+"""Resolve Linux syslog timestamps into year-aware datetime objects."""
+
 from datetime import datetime, timedelta
 
 def resolve_syslog_timestamp(
