@@ -1,15 +1,19 @@
-"""date model for Apache/Nginx ccess-log events."""
+"""Data model for Apache/Nginx access-log events."""
 
 from dataclasses import dataclass
+from datetime import datetime
 
 @dataclass
 class AccessLogEvent:
     client_ip: str
     remote_logname: str
     authenticated_user: str
-    timestamp: str
+    timestamp: datetime
     request: str
+    method: str
+    path: str
+    protocol: str
     status_code: int
     response_size: int
-    referre: str
+    referer: str
     user_agent: str
