@@ -12,6 +12,7 @@ class AccessLogEvent:
     request: str
     method: str
     path: str
+    query_string: str
     protocol: str
     status_code: int
     response_size: int

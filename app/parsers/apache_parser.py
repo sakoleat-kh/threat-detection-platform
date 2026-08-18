@@ -34,7 +34,13 @@ def parse_access_line(raw_line: str) -> Optional[AccessLogEvent]:
     if len(request_parts) != 3:
         return None
 
-    method, path, protocol = request_parts
+    method, target, protocol = request_parts
+
+    if "?"in target:
+        path, query_string = target.split("?", 1)
+    else:
+        path = target
+        query_string = ""
 
     timestamp = datetime.strptime(
         data["timestamp"],
@@ -49,6 +55,7 @@ def parse_access_line(raw_line: str) -> Optional[AccessLogEvent]:
         request=request,
         method=method,
         path=path,
+        query_string=query_string,
         protocol=protocol,
         status_code=int(data["status_code"]),
         response_size=int(data["response_size"]),
