@@ -1,0 +1,1 @@
+"""Data models for structured security log events."""

@@ -1,3 +1,5 @@
+"""Data model for Linux authetication log events."""
+
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum

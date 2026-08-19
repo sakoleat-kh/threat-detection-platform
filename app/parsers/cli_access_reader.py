@@ -25,11 +25,11 @@ def main():
         if index < 10:
             print(event)
 
-        print("\nHTTP Status Summary")
-        print("---------------------")
+    print("\nHTTP Status Summary")
+    print("---------------------")
 
-        for status_code, count in sorted (counts.items()):
-            print(f"{status_code:<25} {count}")
+    for status_code, count in sorted (counts.items()):
+        print(f"{status_code:<25} {count}")
 
 if __name__ == "__main__":
     main()

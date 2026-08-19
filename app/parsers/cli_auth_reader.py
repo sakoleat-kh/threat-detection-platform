@@ -1,3 +1,5 @@
+"""Command-line interdace for streaming Linux auth logs."""
+
 import argparse
 from collections import Counter
 from datetime import datetime
