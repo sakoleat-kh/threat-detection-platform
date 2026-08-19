@@ -1,0 +1,8 @@
+this is completely garbage
+Apache garbage line
+192.168.1.10 - - [bad timestamp] "GET / HTTP/1.1" 200 123 "-" "Mozilla/5.0" "-"
+192.168.1.10 - - [22/Jan/2019:99:99:99 +0330] "GET / HTTP/1.1" 200 123 "-" "Mozilla/5.0" "-"
+192.168.1.10 - - [22/Jan/2019:03:56:14 +0330] "GET / HTTP/1.1" abc 123 "-" "Mozilla/5.0" "-"
+192.168.1.10 - - [22/Jan/2019:03:56:14 +0330] "GET / HTTP/1.1" 200 abc "-" "Mozilla/5.0" "-"
+192.168.1.10 - - [22/Jan/2019:03:56:14 +0330] "GET / HTTP/1.1" 200 123
+192.168.1.10 - - [22/Jan/2019:03:56:14 +0330] "BROKEN REQUEST" 200 abc "-" "Mozilla/5.0" "-"
