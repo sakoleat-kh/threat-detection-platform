@@ -1,8 +1,10 @@
 """Abstract interface for detection rules."""
 
 from abc import ABC, abstractmethod
+
 from typing import List
 
+from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
 
 class DetectionRule(ABC):
