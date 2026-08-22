@@ -1,5 +1,7 @@
 """Tests for the detection engine."""
 
+import logging
+
 from datetime import datetime, timezone
 
 from app.detection.engine import DetectionEngine
@@ -65,3 +67,48 @@ def test_engine_runs_registered_rule_and_collects_alerts():
     assert all(alert.rule_name == "test_auth_rule" for alert in alerts)
     assert alerts[0].event.event_id == "auth-1"
     assert alerts[1].event.event_id == "auth-2"
+
+
+class FailingRule(DetectionRule):
+    """Test rule that deliberately raises an exceptions."""
+
+    def evaluate(self, events):
+        """Raise an exception to test engine resilience."""
+        raise ValueError("intentional test failure")
+
+    def test_engine_continues_when_rule_raises_exception(caplog):
+        """A failing rule should not prevent later rules from running."""
+
+        events = [
+            NormalizedEvent(
+                event_id="auth-1",
+                timestamp=datetime.now(timezone.utc),
+                source_type="auth",
+                source_ip=None,
+                username="ubuntu",
+                raw_event_type="unknown",
+                raw_data={},
+            ),
+        ]
+        engine = DetectionEngine()
+
+        engine.register_rule(FailingRule())
+        engine.register_rule(TestRule())
+
+        with caplog.at_level(logging.ERROR):
+            alerts = engine.run(events)
+
+        assert len(alerts) == 1
+        assert alerts[0].rule_name == "test_auth_rule"
+        assert "FailingRule" in caplog.text
+        assert "intentional test failure" in caplog.text
+
+    def test_engine_with_empty_events_returns_no_alerts():
+        """an empty event list should produce zero alers."""
+
+        engine = DetectionEngine()
+        engine.register_rule(TestRule())
+
+        alerts = engine.run([])
+
+        assert alerts == []

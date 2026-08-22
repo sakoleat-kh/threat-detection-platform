@@ -1,10 +1,13 @@
 """Core detection engine for running registered detection rules."""
 
+import logging
 from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+
+logger = logging.getLogger(__name__)
 
 class DetectionEngine:
     """Run registered detection rules against normalized events."""
@@ -22,6 +25,12 @@ class DetectionEngine:
         alerts: List[Alert] = []
 
         for rule in self.rules:
-            alerts.extend(rule.evaluate(events))
+            try:
+                alerts.extend(rule.evaluate(events))
+            except Exception:
+                logger.exception(
+                "detection rule failed: %s",
+                rule.__class__.__name__,
+            )
 
         return alerts
