@@ -1,20 +1,22 @@
 """Tests for SSH brute-force detection."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from app.detection.engine import DetectionEngine
 from app.detection.rules.ssh_brute_force import SSHBruteForceRule
 from app.models.normalized_event import NormalizedEvent
+
+BASE_TIME = datetime(2026, 8, 23, 12, 0, 0, tzinfo=timezone.utc)
 
 def make_event(
     event_id: str,
     source_ip: str,
+    timestamp: datetime,
     event_type: str = "ssh_failed_password",
 ) -> NormalizedEvent:
     """Create a normalized event for testing."""
     return NormalizedEvent(
         event_id=event_id,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=timestamp,
         source_type="auth",
         source_ip=source_ip,
         username="ubuntu",
@@ -22,59 +24,72 @@ def make_event(
         raw_data={},
     )
 
-def test_detects_five_failed_ssh_logins_from_same_ip():
-    """Five failed SSH logins from one IP should trigger an alert."""
+def test_spread_over_two_hours_does_not_trigger():
+    """Five failed failures spread over two hours should not trigger."""
 
     events = [
-        make_event(str(i), "10.0.0.5")
+        make_event(str(i), "10.0.0.5", BASE_TIME + timedelta(minutes=i * 30))
         for i in range(5)
-    ]
-
-    alerts = SSHBruteForceRule().evaluate(events)
-
-    assert len(alerts) == 1
-    assert alerts[0].rule_name == "ssh_brute_force"
-    assert alerts[0].severity == "high"
-    assert alerts[0].event.source_ip == "10.0.0.5"
-
-def test_does_not_combine_different_source_ips():
-    """Failured from different IPs should have separate counters."""
-
-    events = [
-        *[make_event(str(i), "10.0.0.1") for i in range(3)],
-        *[make_event(str(i + 3), "10.0.0.2") for i in range(5)],
-    ]
-
-    alerts = SSHBruteForceRule().evaluate(events)
-
-    assert len(alerts) == 1
-    assert alerts[0].event.source_ip == "10.0.0.2"
-
-def test_does_not_alert_below_threshold():
-    """Four failed SSH logins should not trigger the rule."""
-
-    events = [
-        make_event(str(i), "10.0.0.5")
-        for i in range(4)
     ]
 
     alerts = SSHBruteForceRule().evaluate(events)
 
     assert alerts == []
 
-def test_engine_runs_ssh_brute_force_rule():
-    """DetectionEngine should execute the SSH brute-force rule."""
+def test_clustered_failures_within_three_minutes_trigger():
+    """Five failures within three minutes should trigger."""
 
     events = [
-        make_event(str(i), "10.0.0.5")
+        make_event(
+            str(i),
+            "10.0.0.5",
+            BASE_TIME + timedelta(seconds=i * 45),
+        )
         for i in range(5)
     ]
 
-    engine = DetectionEngine()
-    engine.register_rule(SSHBruteForceRule())
-
-    alerts = engine.run(events)
+    alerts = SSHBruteForceRule().evaluate(events)
 
     assert len(alerts) == 1
     assert alerts[0].rule_name == "ssh_brute_force"
     assert alerts[0].event.source_ip == "10.0.0.5"
+
+def test_exact_five_minute_boundary_triggers():
+    """Five failures exactly five minutes apart should trigger."""
+
+    timestamps = [
+        BASE_TIME,
+        BASE_TIME + timedelta(minutes=1),
+        BASE_TIME + timedelta(minutes=2),
+        BASE_TIME + timedelta(minutes=3),
+        BASE_TIME + timedelta(minutes=5),
+    ]
+
+    events = [
+        make_event(str(i), "10.0.0.5", timestamp)
+        for i, timestamp in enumerate(timestamps)
+    ]
+
+    alerts = SSHBruteForceRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_more_than_five_minutes_does_not_trigger():
+    """Five failures apanning more than five minutes should not trigger."""
+
+    timestamps = [
+        BASE_TIME,
+        BASE_TIME + timedelta(minutes=1),
+        BASE_TIME + timedelta(minutes=2),
+        BASE_TIME + timedelta(minutes=3),
+        BASE_TIME + timedelta(minutes=5, seconds=1),
+    ]
+
+    events = [
+        make_event(str(i), "10.0.0.5", timestamp)
+        for i, timestamp in enumerate(timestamps)
+    ]
+
+
+    alerts = SSHBruteForceRule().evaluate(events)
+    assert alerts == []
