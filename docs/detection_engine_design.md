@@ -38,3 +38,9 @@ AuthLogEvent ------
                   |
                  \|/
                 Alerts
+
+## Rule 4 - New User Creation
+
+The New User Creation rule generates an alert for every `USER_ADDED` event.
+
+UID filtering is intentionally not applied. In particular, users with UIDs below 1000 are not automatically ignored. The design treats every new user creation as security-relevant and leaves the decision about whether the account is legitimate to further investigation.
