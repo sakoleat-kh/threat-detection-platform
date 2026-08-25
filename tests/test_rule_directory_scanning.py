@@ -1,4 +1,10 @@
-"""Dedicated tests for Rule 5: directory scanning."""
+"""Dedicated tests for Rule 5: directory scanning.
+
+False-positive limitation:
+
+This rule detects traffic that resembles directory scanning based on distinct-path count and a high 404 ratio. Legitimate vulnerability scanners, crawlers, or other authorized tools may produce the same pattern. The rule therefore indicates suspicious behavior rather than proving malicious activity. Environmental allowlisting or additional context may be required to reduce false positives
+
+"""
 
 from datetime import datetime, timedelta, timezone
 
@@ -36,7 +42,7 @@ def make_events(
     status_code: int = 404,
     start_time: datetime = BASE_TIME,
 ) -> list[NormalizedEvent]:
-    """create access events with distinct paths."""
+    """Create access events with distinct paths."""
     return [
         make_event(
             str(i),
@@ -86,7 +92,7 @@ def test_low_404_ratio_does_not_trigger():
     assert alerts == []
 
 def test_repeated_same_path_does_not_trigger():
-    """repeated requests to one path are not directory scanning."""
+    """Repeated requests to one path are not directory scanning."""
 
     events = [
         make_event(
@@ -140,7 +146,7 @@ def test_events_spread_outside_window_do_not_trigger():
 
     assert alerts == []
 
-def test_exactly_eighty_precent_404_triggers():
+def test_exactly_eighty_percent_404_triggers():
     """Exactly 80% 404 responses should satisfy the threshold."""
 
     events = [
@@ -157,6 +163,24 @@ def test_exactly_eighty_precent_404_triggers():
 
     assert len(alerts) == 1
     assert alerts[0].rule_name == "directory_scanning"
+
+
+def test_above_threshold_but_mostly_200_does_not_trigger():
+    """Many paths with mostly successful responses should not trigger."""
+    events = [
+        *make_events("10.0.0.1", 4, 404),
+        *make_events(
+            "10.0.0.1",
+            16,
+            200,
+            BASE_TIME + timedelta(minutes=1),
+        ),
+    ]
+
+    alerts = DirectoryScanningRule().evaluate(events)
+
+    assert alerts == []
+
 
 def test_engine_runs_directory_scanning_rule():
     """DetectionEngine should execute Rule 5."""
