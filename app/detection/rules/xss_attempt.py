@@ -22,7 +22,7 @@ XSS_PATTERNS = [
 
     # Common inline event handlers
     re.compile(
-        r"\bon(?:error|load|click|mouseover|focus)\s*=*",
+        r"\bon(?:error|load|click|mouseover|focus)\s*=",
         re.IGNORECASE,
     ),
 

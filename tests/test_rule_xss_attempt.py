@@ -31,7 +31,7 @@ def make_event(
     )
 
 def test_script_tag_xss_triggers():
-    """A script tag paylaod should trigger."""
+    """A script tag payload should trigger."""
 
     events = [
         make_event(
@@ -162,7 +162,7 @@ def test_only_matching_events_generate_alerts():
         make_event(
             "malicious",
             "/search",
-            "q=<script>alert(1)</scritp>",
+            "q=<script>alert(1)</script>",
         ),
         make_event(
             "normal",
@@ -195,3 +195,94 @@ def test_engine_runs_xss_rule():
     assert len(alerts) == 1
     assert alerts[0].rule_name == "xss_attempt"
     assert alerts[0].event.event_id == "engine-xss"
+
+def test_url_encoded_xss_is_known_limitation():
+    """URL-encoded XSS is not decoded by the current rule."""
+
+    events = [
+        make_event(
+            "encoded-xss",
+            "/search",
+            "q=%3Cscript%3Ealert(1)%3c%2Fscript%3E",
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert alerts == []
+
+def test_onload_handler_triggers():
+    """An onload event handler should trigger."""
+
+    events = [
+        make_event(
+            "onload",
+            "/search",
+            "q=<body onload=alert(1)>",
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+
+def test_onmouseover_handler_triggers():
+    """An onmouseover event handler should trigger."""
+
+    events = [
+        make_event(
+            "onmouseover",
+            "/search",
+            "q=<div onmouseover=alert(1)>test</div>",
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_onfocus_handler_triggers():
+    """An onfocus event handler should trigger."""
+
+    events = [
+        make_event(
+            "onfocus",
+            "/search",
+            'q=<input onfocus="alert(1)">',
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_executable_html_element_triggers():
+    """An executable HTML element pattern should trigger."""
+
+    events = [
+        make_event(
+            "html-element",
+            "/search",
+            "q=<svg onload=alert(1)>",
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_html_breakout_pattern_triggers():
+    """An HTML breakout pattern should trigger."""
+
+    events = [
+        make_event(
+            "html-breakout",
+            "/search",
+            'q=><script>alert(1)</script>',
+        )
+    ]
+
+    alerts = XSSAttemptRule().evaluate(events)
+
+    assert len(alerts) == 1
