@@ -8,15 +8,38 @@ from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
 
 SQLI_PATTERNS = [
-    re.compile(r"(?:'|\")\s*(?:or|and)\s+\d+\s*\d+", re.IGNORECASE),
+    # Boolean=based
+    re.compile(r"""(?:'|\")\s*(?:or|and)\s+\d+\s*=\s*\d+""", re.IGNORECASE),
+
+    # UNION-based
     re.compile(r"\bunion\s+(?:all\s+)?select\b", re.IGNORECASE),
+
+    # SELECT
     re.compile(r"\bselect\s+.+\s+\bfrom\b", re.IGNORECASE),
+
+    # INSERT
     re.compile(r"\binsert\s+into\b", re.IGNORECASE),
+
+    # UPDATE
     re.compile(r"\bupdate\s+\w+\s+set\b", re.IGNORECASE),
+
+    # DELETE
     re.compile(r"\bdelete\s+from\b", re.IGNORECASE),
+
+    # DROP
     re.compile(r"\bdrop\s+(?:table|database)\b", re.IGNORECASE),
+
+    # SQL comments
     re.compile(r"--\s*(?:$|[^\r\n])", re.IGNORECASE),
     re.compile(r"/\*.*?\*/", re.IGNORECASE | re.DOTALL),
+
+    # OWASP-inspired additions
+    re.compile(r"\bhaving\s+\d+\s*=\s*\d+", re.IGNORECASE),
+    re.compile(r"\b(?:sleep|benchmark)\s*\(", re.IGNORECASE),
+    re.compile(r";\s*(?:select|insert|update|delete|drop)\b", re.IGNORECASE),
+    re.compile(r"""(?:'|\")\s*(?:or|and)\s+['\"]?\w+['\"]?\s*=\s*['\"]?\w+['\"]?""", re.IGNORECASE),
+    re.compile(r"(?:^|[\s'\";])#(?:\s|$)", re.IGNORECASE),
+
 ]
 
 class SQLInjectionRule(DetectionRule):

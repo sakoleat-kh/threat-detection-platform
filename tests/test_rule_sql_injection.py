@@ -166,3 +166,194 @@ def test_engine_runs_sql_injection_rule():
     assert len(alerts) == 1
     assert alerts[0].rule_name == "sql_injection"
     assert alerts[0].event.event_id == "malicious"
+
+def test_select_from_signature():
+    """SELECT ... FROM pattern should trigger."""
+
+    events = [
+        make_event(
+            "select-from",
+            "/search",
+            "q=SELECT username FROM users",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_insert_into_signature():
+    """INSERT INTO pattern should trigger."""
+
+    events = [
+        make_event(
+            "insert",
+            "/api",
+            "q=INSERT INTO users VALUES (1)",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+def test_update_set_signature():
+    """UPDATE ... SET pattern should trigger."""
+
+    events = [
+        make_event(
+            "update",
+            "/api",
+            "q=UPDATE users SET passowrd='x'",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_delete_from_signature():
+    """DELETE FROM pattern should trigger."""
+
+    events = [
+        make_event(
+            "delete",
+            "/api",
+            "q=DELETE FROM users WHERE id=1",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_drop_table_signature():
+    """DROP TABLE pattern should trigger."""
+
+    events = [
+        make_event(
+            "drop",
+            "/api",
+            "q=DROP TABLE users",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_sql_comment_signature():
+    """SQL double-dash comment pattern should trigger."""
+
+    events = [
+        make_event(
+            "comment",
+            "/search",
+            "q=admin' --",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_block_comment_signature():
+    """SQL block comment pattern should trigger."""
+
+    events = [
+        make_event(
+            "block-comment",
+            "/search",
+            "q=admin' /* comment */",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_having_signature():
+    """HAVING 1=1 pattern should trigger."""
+
+    events = [
+        make_event(
+            "having",
+            "/search",
+            "q=HAVING 1=1",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_sleep_signature():
+    """SLEEP function pattern should trigger."""
+
+    events = [
+        make_event(
+            "sleep",
+            "/search",
+            "q=SLEEP(5)",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_stacked_query_signature():
+    """Stacked SQL query pattern should trigger."""
+
+    events = [
+        make_event(
+            "stacked",
+            "/search",
+            "q=1; SELECT username FROM users",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_string_boolean_signature():
+    """String-based boolean SQLi pattern should trigger."""
+
+    events = [
+        make_event(
+            "string-boolean",
+            "/search",
+            "q=' OR 'a'='a'",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
+
+def test_hash_comment_signature():
+    """SQL hash-comment pattern should trigger."""
+
+    events = [
+        make_event(
+            "hash-coment",
+            "/search",
+            "q=admin' #",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+def test_sql_looking_but_benign_request_does_not_trigger():
+    """SQL-looking natural language should not trigger."""
+
+    events = [
+        make_event(
+            "benign",
+            "/search",
+            "q=select a book about databases",
+        )
+    ]
+
+    alerts = SQLInjectionRule().evaluate(events)
+
+    assert alerts == []
