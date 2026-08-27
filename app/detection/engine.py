@@ -6,6 +6,7 @@ from typing import List
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+from app.mitre.mapping import enrich_alert_with_mitre
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,11 @@ class DetectionEngine:
 
         for rule in self.rules:
             try:
-                alerts.extend(rule.evaluate(events))
+                rule_alerts = rule.evaluate(events)
+
+                for alert in rule_alerts:
+                    enrich_alert_with_mitre(alert)
+                alerts.extend(rule_alerts)
             except Exception:
                 logger.exception(
                 "detection rule failed: %s",

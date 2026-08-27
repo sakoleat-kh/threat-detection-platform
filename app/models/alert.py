@@ -11,3 +11,6 @@ class Alert:
     severity: str
     message: str
     event: NormalizedEvent
+    mitre_technique_id: str | None = None
+    mitre_technique_name: str | None = None
+    mitre_tactic: str | None = None
