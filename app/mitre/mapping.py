@@ -21,7 +21,7 @@ RULE_MITRE_MAPPING = {
     "new_user_creation": {
         "technique_id": "T1136.001",
         "technique_name": "Local Account",
-        "tactic": "persistence",
+        "tactic": "Persistence",
     },
     "directory_scanning": {
         "technique_id": "T1595.003",
@@ -36,7 +36,7 @@ RULE_MITRE_MAPPING = {
     "xss_attempt": {
         "technique_id": "T1189",
         "technique_name": "Drive-by Compromise",
-        "tactic": "Initail Access",
+        "tactic": "Initial Access",
     },
     "suspicious_user_agent": {
         "technique_id": "T1595.002",
