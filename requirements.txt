@@ -4,4 +4,4 @@
 - SSH failed password, accepted password, and invalid user events are supported.
 - Unknown valid syslog events events are preserved as `EventType.UNKNOWN`.
 - Pytest suite added for SSH parsing.
-- All 4 parser tests currently pass.
+- All 4 parser tests currently pass.SQLAlchemy==2.0.52
