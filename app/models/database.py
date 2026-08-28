@@ -18,3 +18,7 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+def init_db() -> None:
+    """Create all datebase tables if they do not already exist."""
+    Base.metadata.create_all(bind=engine)
