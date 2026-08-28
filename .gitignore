@@ -33,3 +33,4 @@ dist/
 # OS Files
 .DS_Store
 Thumbs.db
+alerts.db
