@@ -33,7 +33,7 @@ Index this column because analysts may frequently filter alerts by the detection
 
 ### `rule_name`
 
-This column is stored for readability and reporting, but is does not receive an index initially because `rule_id` is the stable identifier used for rule-based filtering. A saparete index can be added later if real query patterns require filtering directly by `rule_name`.
+This column is stored for readability and reporting, but does not receive an index initially because `rule_id` is the stable identifier used for rule-based filtering. A saparate index can be added later if real query patterns require filtering directly by `rule_name`.
 
 ### `severity`
 
