@@ -36,36 +36,22 @@ def ingest_logs(
     access_lines_processed = 0
 
     if auth_log_path is not None:
-        with open(auth_log_path, "r", encoding="utf-8") as file:
-            auth_lines = [line for line in file if line.strip()]
-
-        auth_lines_processed = len(auth_lines)
-
-        for line in auth_lines:
-            from app.parsers.linux_parser import parse_line
-
-            event = parse_line(line.strip(), reference_date)
-
-            if event is not None:
-                normalize_events.append(
-                    normalize_auth_event(event)
-                )
+        for event in read_auth_log(
+            auth_log_path,
+            reference_date,
+        ):
+            auth_lines_processed += 1
+            normalize_events.append(
+                normalize_auth_event(event)
+            )
 
     if access_log_path is not None:
-        with open(access_log_path, "r", encoding="utf-8") as file:
-            access_lines = [line for line in file if line.strip()]
+        for event in read_access_log(access_log_path):
+            access_lines_processed += 1
+            normalize_events.append(
+                normalize_access_event(event)
+            )
 
-        access_lines_processed = len(access_lines)
-
-        for line in access_lines:
-            from app.parsers.apache_parser import parse_access_line
-
-            event = parse_access_line(line.strip())
-
-            if event is not None:
-                normalize_events.append(
-                    normalize_access_event(event)
-                )
     alerts = engine.run(normalize_events)
 
     alerts_by_rule = Counter(alert.rule_name for alert in alerts)

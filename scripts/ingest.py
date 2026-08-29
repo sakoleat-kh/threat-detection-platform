@@ -1,5 +1,6 @@
 """Command-line interface for log ingestion."""
 
+from pathlib import Path
 import argparse
 from datetime import datetime
 
@@ -23,7 +24,6 @@ def build_engine() -> DetectionEngine:
     engine.register_rule(SuccessfulAfterFailuresRule())
     engine.register_rule(ExcessiveSudoRule())
     engine.register_rule(NewUserCreationRule())
-    engine.register_rule(DirectoryScanningRule())
     engine.register_rule(DirectoryScanningRule())
     engine.register_rule(SQLInjectionRule())
     engine.register_rule(XSSAttemptRule())
@@ -85,6 +85,14 @@ def main() -> None:
     """Run the CLI ingestion pipeline."""
 
     args = parse_args()
+
+    if args.auth_log is not None and not Path(args.auth_log).is_file():
+        print(f"Error: auth log file not found: {args.auth_log}")
+        return
+
+    if args.access_log is not None and not Path(args.access_log).is_file():
+        print(f"Error: access log file not found: {args.access_log}")
+        return
 
     result = ingest_logs(
         auth_log_path=args.auth_log,
