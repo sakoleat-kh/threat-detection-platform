@@ -59,3 +59,49 @@ def get_all_alerts(
     )
 
     return list(session.scalars(statement).all())
+
+def get_alerts_filtered(
+    session: Session,
+    rule_id: str | None = None,
+    technique_id: str | None = None,
+    source_ip: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> List[AlertRecord]:
+    """Return alerts matching the provided filters with pagination."""
+
+    statement = select(AlertRecord)
+
+    if rule_id is not None:
+        statement = statement.where(AlertRecord.rule_id == rule_id)
+
+    if technique_id is not None:
+        statement = statement.where(
+            AlertRecord.technique_id == technique_id
+        )
+
+    if source_ip is not None:
+        statement = statement.where(
+            AlertRecord.source_ip == source_ip
+        )
+
+    if start_date is not None:
+        statement = statement.where(
+            AlertRecord.event_timestamp >= start_date
+        )
+
+    if end_date is not None:
+        statement = statement.where(
+            AlertRecord.event_timestamp <= end_date
+        )
+
+    statement = (
+        statement
+        .order_by(AlertRecord.id)
+        .limit(limit)
+        .offset(offset)
+    )
+
+    return list(session.scalars(statement).all())
