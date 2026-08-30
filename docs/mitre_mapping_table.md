@@ -3,7 +3,7 @@
 | Rule | Detection | MITRE Technique | Tactic | Justification |
 |------|------|------|------|------|
 | Rule 1 | SSH Brute Force | T1110 -- Brute Force | Credential Access | The rule detects repeated failed SSH authentication attempts, which directly matches brute-force password guessing behavior. |
-| Rule 2 | Successful After Failures | T1110 -- Brute Force | Credential Access | The cobination of repeated authentication failures followed by a successful login is consistent with the brute-force detection behavior described by MITRE. |
+| Rule 2 | Successful After Failures | T1110 -- Brute Force | Credential Access | The combination of repeated authentication failures followed by a successful login is consistent with the brute-force detection behavior described by MITRE. |
 | Rule 3 | Excessive Sudo | T1548.003 -- Sudo and Sudo Caching | Privilege Escalation | The rule detects repeated sudo activity, which is relevant to abuse of sudo for elevated privileges. |
 | Rule 4 | New User Creation | T1136.001 -- Local Account | Persistence | The rule detects Linux local account creation events, which directly corresponds to the Local Account sub-technique of Create Account. |
 | Rule 5 | Directory Scanning | T1595.003 -- Wordlist Scanning | Reconnaissance | The rule detects rapid requests for many distinct web paths, resembling enumeration of web content using a path list. |
