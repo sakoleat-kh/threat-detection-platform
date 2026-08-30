@@ -80,6 +80,24 @@ def print_summary(result: IngestionResult) -> None:
     print("=" * 50)
     print(f"Alerts generated:       {result.alerts_generated}")
     print(f"Alerts saved to DB:     {result.alerts_saved}")
+    print("\nPERFORMANCE")
+    print("=" * 50)
+    print(
+        f"Parse + normalize:    "
+        f"{result.parse_normalize_seconds:.4f} seconds"
+    )
+    print(
+        f"Detection + MITRE:    "
+        f"{result.detection_seconds:.4f} seconds"
+    )
+    print(
+        f"Database persistence:  "
+        f"{result.database_seconds:.4f} seconds"
+    )
+    print(
+        f"Total runtime:        "
+        f"{result.total_seconds:.4f} seconds"
+    )
 
 def main() -> None:
     """Run the CLI ingestion pipeline."""
