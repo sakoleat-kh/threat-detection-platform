@@ -1,4 +1,4 @@
-"""Data model for Linux authetication log events."""
+"""Data model for Linux authentication log events."""
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -31,24 +31,3 @@ class AuthLogEvent:
     uid: Optional[int]
     gid: Optional[int]
     home_dir: Optional[str]
-
-if __name__ == "__main__":
-    event = AuthLogEvent(
-        raw_line=(
-
-            "Aug 6 09:15:22 ubuntu sshd[2543]:"
-            "Failed password for invalid user admin "
-            "from 192.168.1.15 port 51234 ssh2"
-        ),
-        timestamp=datetime(2026,8, 6, 9, 15, 22),
-        host="ubuntu",
-        process="sshd",
-        pid=2543,
-        event_type=EventType.SSH_FAILED_PASSWORD,
-        username="admin",
-        source_ip="192.168.1.15",
-        port=51234,
-        command=None,
-        target_user=None,
-    )
-    print(event)

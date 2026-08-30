@@ -44,27 +44,3 @@ def resolve_syslog_timestamp(
         candidate = candidate.replace(year=candidate.year + 1)
 
     return candidate
-
-if __name__ == "__main__":
-    reference = datetime(2027, 1, 2)
-
-    test_cases = [
-        ("Aug", "6", "09:15:22"),
-        ("Jan", "10", "12:00:00"),
-        ("Dec", "31", "23:30:00"),
-        ("Jan", "1", "00:05:00"),
-        ("Jul", "15", "18:20:30"),
-    ]
-
-    for month, day, time_str in test_cases:
-        result = resolve_syslog_timestamp(
-            month,
-            day,
-            time_str,
-            reference,
-        )
-
-        print(
-            f"{month} {day} {time_str}"
-            f" -> {result}"
-        )

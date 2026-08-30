@@ -318,20 +318,3 @@ PATTERN_REGISTRY = [
     (SUDO_AUTH_FAILURE_PATTERN, handle_sudo_auth_failure),
     (USER_ADDED_PATTERN, handle_user_added),
 ]
-
-if __name__ == "__main__":
-
-    reference_date = datetime(2026, 8, 16)
-
-    sample_lines = [
-        "Aug  6 09:15:22 ubuntu sshd[2543]: Failed password for invalid user admin from 192.168.1.15 port 51234 ssh2",
-        "Aug  6 09:16:22 ubuntu sshd[2544]: Accepted password for sakol from 192.168.1.20 port 41234 ssh2",
-        "Aug  6 09:17:22 ubuntu sshd[2545]: Invalid user test from 10.0.0.5 port 33333",
-        "Aug  6 09:18:22 ubuntu sshd[2546]: Some unknown SSH event",
-
-        "2026-08-16T12:47:46.043193+00:00 Sakol useradd[13106]: new user: name=day9_test, UID=1001, GID=1002, home=/home/day9_test, shell=/bin/sh, from=/dev/pts/11"
-    ]
-
-    for line in sample_lines:
-        event = parse_line(line, reference_date)
-        print(event)
