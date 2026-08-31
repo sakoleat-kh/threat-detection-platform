@@ -1,0 +1,145 @@
+{
+  "info": {
+    "_postman_id": "threat-detection-platform-day70",
+    "name": "Threat Detection Platform API",
+    "description": "Postman collection for the Threat Detection Platform FastAPI endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Alerts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/alerts/?limit=20&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "alerts",
+            ""
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "20"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Filtered Alerts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/alerts/?rule_id=excessive_sudo&technique_id=T1548.003&limit=2&offset=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "alerts",
+            ""
+          ],
+          "query": [
+            {
+              "key": "rule_id",
+              "value": "excessive_sudo"
+            },
+            {
+              "key": "technique_id",
+              "value": "T1548.003"
+            },
+            {
+              "key": "limit",
+              "value": "2"
+            },
+            {
+              "key": "offset",
+              "value": "0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Alert By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/alerts/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "alerts",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Alert By ID - Not Found",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/alerts/999999999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "alerts",
+            "999999999"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Stats",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/stats/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "stats",
+            ""
+          ]
+        }
+      }
+    }
+  ]
+}
