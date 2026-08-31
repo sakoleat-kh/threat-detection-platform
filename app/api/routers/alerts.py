@@ -2,19 +2,20 @@
 
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.models.database import SessionLocal
-from app.repository.alert_repository import get_alerts_filtered
+from app.repository.alert_repository import get_alerts_filtered, get_alert_by_id
+from fastapi import APIRouter, Depends, HTTPException, Query
+
 
 router = APIRouter(
     prefix="/alerts",
     tags=["alerts"],
 )
 
-class AalertResponse(BaseModel):
+class AlertResponse(BaseModel):
     """Response model for a persisted detection alert."""
 
     model_config = ConfigDict(from_attributes=True)
@@ -40,7 +41,7 @@ def get_db():
     with SessionLocal() as session:
         yield session
 
-@router.get("/", response_model=list[AalertResponse])
+@router.get("/", response_model=list[AlertResponse])
 def get_alerts(
     session: Session = Depends(get_db),
     rule_id: str | None = None,
@@ -48,7 +49,7 @@ def get_alerts(
     source_ip: str | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-) -> list[AalertResponse]:
+) -> list[AlertResponse]:
     """Return filtered and paginated detection alerts."""
 
     return get_alerts_filtered(
@@ -60,3 +61,18 @@ def get_alerts(
         offset=offset,
     )
 
+@router.get("/{alert_id}", response_model=AlertResponse)
+def get_alert(
+    alert_id: int,
+    session: Session = Depends(get_db),
+) -> AlertResponse:
+    """Return one alert by database ID."""
+
+    alert = get_alert_by_id(session, alert_id)
+
+    if alert is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Alert not found",
+        )
+    return alert
