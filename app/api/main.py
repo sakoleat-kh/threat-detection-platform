@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from app.models.database import init_db
 from app.api.routers.alerts import router as alerts_router
+from app.api.routers.stats import router as stats_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,3 +25,4 @@ def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 app.include_router(alerts_router)
+app.include_router(stats_router)

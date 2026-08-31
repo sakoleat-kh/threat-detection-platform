@@ -2,7 +2,7 @@
 
 from typing import List, Optional
 from datetime import datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.alert import Alert
@@ -105,3 +105,44 @@ def get_alerts_filtered(
     )
 
     return list(session.scalars(statement).all())
+
+def get_alert_stats(session: Session) -> dict[str, dict[str, int]]:
+    """Return alert counts grouped by rule, technique, and tactic."""
+
+    rule_statement = (
+        select(AlertRecord.rule_id, func.count(AlertRecord.id))
+        .group_by(AlertRecord.rule_id)
+    )
+
+    technique_statement = (
+        select(AlertRecord.technique_id, func.count(AlertRecord.id))
+        .where(AlertRecord.tactic.is_not(None))
+        .group_by(AlertRecord.tactic)
+    )
+
+    tactic_statement = (
+        select(AlertRecord.tactic, func.count(AlertRecord.id))
+        .where(AlertRecord.tactic.is_not(None))
+        .group_by(AlertRecord.tactic)
+    )
+
+    by_rule = {
+        key: count
+        for key, count in session.execute(rule_statement)
+    }
+
+    by_technique = {
+        key: count
+        for key, count in session.execute(technique_statement)
+    }
+
+    by_tactic = {
+        key: count
+        for key, count in session.execute(tactic_statement)
+    }
+
+    return {
+        "by_rule": by_rule,
+        "by_technique": by_technique,
+        "by_tactic": by_tactic,
+    }
