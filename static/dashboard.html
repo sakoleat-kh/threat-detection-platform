@@ -1,41 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Threat Detection Platform</title>
 
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 </head>
 
+
 <body class="bg-light">
 
     <!-- Header -->
     <header class="bg-dark text-white py-4 mb-4">
+
         <div class="container">
-            <h1 class="mb-1">Threat Detection Platform</h1>
+
+            <h1 class="mb-1">
+                Threat Detection Platform
+            </h1>
+
             <p class="mb-0 text-light">
                 Security alerts and MITRE ATT&CK monitoring dashboard
             </p>
+
         </div>
+
     </header>
 
 
     <main class="container">
 
+
         <!-- Statistics -->
         <section class="mb-4">
 
-            <h2 class="h4 mb-3">Alert Statistics</h2>
+            <h2 class="h4 mb-3">
+                Alert Statistics
+            </h2>
+
 
             <div class="row g-3">
 
+
                 <!-- Alerts by Rule -->
                 <div class="col-md-4">
+
                     <div class="card shadow-sm h-100">
 
                         <div class="card-body">
@@ -47,19 +63,32 @@
                             <div class="mt-3">
 
                                 <p class="mb-2">
-                                    <strong>excessive_sudo</strong>
 
-                                    <span class="badge bg-danger float-end">
+                                    <strong>
+                                        excessive_sudo
+                                    </strong>
+
+                                    <span
+                                        class="badge bg-danger float-end"
+                                    >
                                         12
                                     </span>
+
                                 </p>
 
-                                <p class="mb-0">
-                                    <strong>Other Rules</strong>
 
-                                    <span class="badge bg-secondary float-end">
+                                <p class="mb-0">
+
+                                    <strong>
+                                        Other Rules
+                                    </strong>
+
+                                    <span
+                                        class="badge bg-secondary float-end"
+                                    >
                                         0
                                     </span>
+
                                 </p>
 
                             </div>
@@ -67,6 +96,7 @@
                         </div>
 
                     </div>
+
                 </div>
 
 
@@ -84,11 +114,17 @@
                             <div class="mt-3">
 
                                 <p class="mb-0">
-                                    <strong>T1548.003</strong>
 
-                                    <span class="badge bg-warning text-dark float-end">
+                                    <strong>
+                                        T1548.003
+                                    </strong>
+
+                                    <span
+                                        class="badge bg-warning text-dark float-end"
+                                    >
                                         12
                                     </span>
+
                                 </p>
 
                             </div>
@@ -114,11 +150,17 @@
                             <div class="mt-3">
 
                                 <p class="mb-0">
-                                    <strong>Privilege Escalation</strong>
 
-                                    <span class="badge bg-primary float-end">
+                                    <strong>
+                                        Privilege Escalation
+                                    </strong>
+
+                                    <span
+                                        class="badge bg-primary float-end"
+                                    >
                                         12
                                     </span>
+
                                 </p>
 
                             </div>
@@ -129,30 +171,86 @@
 
                 </div>
 
+
             </div>
 
         </section>
 
 
-        <!-- Chart Area -->
+
+        <!-- Charts -->
         <section class="mb-4">
 
             <div class="card shadow-sm">
 
                 <div class="card-body">
 
-                    <h2 class="h5">
-                        Charts
+                    <h2 class="h5 mb-4">
+                        Alert Distribution
                     </h2>
 
-                    <div
-                        class="border rounded bg-light d-flex align-items-center justify-content-center"
-                        style="height: 250px;"
-                    >
 
-                        <span class="text-muted">
-                            Charts will be connected to /stats later
-                        </span>
+                    <div class="row g-4">
+
+
+                        <!-- Rule Chart -->
+                        <div class="col-md-6">
+
+                            <div class="card h-100">
+
+                                <div class="card-body">
+
+                                    <h3 class="h6 text-muted mb-3">
+                                        Alerts by Rule
+                                    </h3>
+
+
+                                    <div
+                                        style="height: 300px;"
+                                    >
+
+                                        <canvas
+                                            id="ruleChart"
+                                        ></canvas>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Tactic Chart -->
+                        <div class="col-md-6">
+
+                            <div class="card h-100">
+
+                                <div class="card-body">
+
+                                    <h3 class="h6 text-muted mb-3">
+                                        Alerts by MITRE Tactic
+                                    </h3>
+
+
+                                    <div
+                                        style="height: 300px;"
+                                    >
+
+                                        <canvas
+                                            id="tacticChart"
+                                        ></canvas>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
 
                     </div>
 
@@ -163,12 +261,14 @@
         </section>
 
 
+
         <!-- Alerts Table -->
         <section class="mb-5">
 
             <div class="card shadow-sm">
 
                 <div class="card-body">
+
 
                     <!-- Table Header -->
                     <div
@@ -179,6 +279,7 @@
                             Recent Alerts
                         </h2>
 
+
                         <div>
 
                             <span
@@ -187,6 +288,7 @@
                             >
                                 0 alerts
                             </span>
+
 
                             <button
                                 id="refreshButton"
@@ -201,24 +303,35 @@
                     </div>
 
 
-                    <!-- Table -->
+
+                    <!-- Alerts Table -->
                     <div class="table-responsive">
 
                         <table class="table table-hover align-middle">
 
+
                             <thead class="table-dark">
 
                                 <tr>
+
                                     <th>ID</th>
+
                                     <th>Rule</th>
+
                                     <th>Severity</th>
+
                                     <th>MITRE Technique</th>
+
                                     <th>Tactic</th>
+
                                     <th>Source</th>
+
                                     <th>User</th>
+
                                 </tr>
 
                             </thead>
+
 
 
                             <tbody id="alertsTableBody">
@@ -230,12 +343,12 @@
                                         class="text-center text-muted"
                                     >
                                         Loading alerts...
-
                                     </td>
 
                                 </tr>
 
                             </tbody>
+
 
                         </table>
 
@@ -247,7 +360,9 @@
 
         </section>
 
+
     </main>
+
 
 
     <!-- Footer -->
@@ -264,19 +379,40 @@
     </footer>
 
 
+
+    <!-- Chart.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+
+
     <!-- Dashboard JavaScript -->
     <script>
 
+        let ruleChart = null;
+        let tacticChart = null;
+
+
+
+        /*
+         * Load alerts from the FastAPI backend
+         */
         async function loadAlerts() {
 
             const tableBody =
-                document.getElementById("alertsTableBody");
+                document.getElementById(
+                    "alertsTableBody"
+                );
+
 
             const alertCount =
-                document.getElementById("alertCount");
+                document.getElementById(
+                    "alertCount"
+                );
 
 
-            // Show loading state
+            // Loading state
             tableBody.innerHTML = `
                 <tr>
                     <td
@@ -291,12 +427,12 @@
 
             try {
 
-                // Request real alert data from FastAPI
                 const response =
-                    await fetch("/alerts/?limit=100");
+                    await fetch(
+                        "/alerts/?limit=100"
+                    );
 
 
-                // Check HTTP response
                 if (!response.ok) {
 
                     throw new Error(
@@ -306,7 +442,6 @@
                 }
 
 
-                // Convert response to JSON
                 const alerts =
                     await response.json();
 
@@ -316,7 +451,7 @@
                     `${alerts.length} alerts`;
 
 
-                // Handle empty database
+                // No alerts
                 if (alerts.length === 0) {
 
                     tableBody.innerHTML = `
@@ -331,24 +466,32 @@
                     `;
 
                     return;
+
                 }
 
 
-                // Clear existing rows
+                // Remove old rows
                 tableBody.innerHTML = "";
 
 
-                // Create one table row for each alert
+                // Create table rows
                 for (const alert of alerts) {
 
                     const row =
-                        document.createElement("tr");
+                        document.createElement(
+                            "tr"
+                        );
 
 
                     row.innerHTML = `
-                        <td>${alert.id}</td>
 
-                        <td>${alert.rule_id}</td>
+                        <td>
+                            ${alert.id}
+                        </td>
+
+                        <td>
+                            ${alert.rule_id}
+                        </td>
 
                         <td>
                             <span class="badge bg-danger">
@@ -371,6 +514,7 @@
                         <td>
                             ${alert.username ?? "-"}
                         </td>
+
                     `;
 
 
@@ -378,16 +522,15 @@
 
                 }
 
+
             } catch (error) {
 
-                // Log error for debugging
                 console.error(
                     "Failed to load alerts:",
                     error
                 );
 
 
-                // Show error to user
                 tableBody.innerHTML = `
                     <tr>
                         <td
@@ -399,6 +542,7 @@
                     </tr>
                 `;
 
+
                 alertCount.textContent =
                     "Error";
 
@@ -407,20 +551,248 @@
         }
 
 
-        // Refresh button
+
+        /*
+         * Load statistics from the FastAPI backend
+         */
+        async function loadStats() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/stats/"
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const stats =
+                    await response.json();
+
+
+                /*
+                 * Extract rule statistics
+                 */
+                const ruleLabels =
+                    Object.keys(
+                        stats.by_rule
+                    );
+
+
+                const ruleValues =
+                    Object.values(
+                        stats.by_rule
+                    );
+
+
+                /*
+                 * Extract tactic statistics
+                 */
+                const tacticLabels =
+                    Object.keys(
+                        stats.by_tactic
+                    );
+
+
+                const tacticValues =
+                    Object.values(
+                        stats.by_tactic
+                    );
+
+
+
+                /*
+                 * Destroy existing charts
+                 *
+                 * This prevents duplicate Chart.js
+                 * instances if the charts are refreshed.
+                 */
+                if (ruleChart) {
+
+                    ruleChart.destroy();
+
+                }
+
+
+                if (tacticChart) {
+
+                    tacticChart.destroy();
+
+                }
+
+
+
+                /*
+                 * Bar chart
+                 *
+                 * Shows alert counts by detection rule.
+                 */
+                ruleChart =
+                    new Chart(
+                        document.getElementById(
+                            "ruleChart"
+                        ),
+                        {
+
+                            type: "bar",
+
+                            data: {
+
+                                labels: ruleLabels,
+
+                                datasets: [
+                                    {
+
+                                        label:
+                                            "Alerts",
+
+                                        data:
+                                            ruleValues
+
+                                    }
+                                ]
+
+                            },
+
+                            options: {
+
+                                responsive: true,
+
+                                maintainAspectRatio:
+                                    false,
+
+                                scales: {
+
+                                    y: {
+
+                                        beginAtZero:
+                                            true,
+
+                                        ticks: {
+
+                                            precision:
+                                                0
+
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+
+
+                /*
+                 * Doughnut chart
+                 *
+                 * Shows alert distribution
+                 * by MITRE tactic.
+                 */
+                tacticChart =
+                    new Chart(
+                        document.getElementById(
+                            "tacticChart"
+                        ),
+                        {
+
+                            type: "doughnut",
+
+                            data: {
+
+                                labels:
+                                    tacticLabels,
+
+                                datasets: [
+                                    {
+
+                                        label:
+                                            "Alerts",
+
+                                        data:
+                                            tacticValues
+
+                                    }
+                                ]
+
+                            },
+
+                            options: {
+
+                                responsive: true,
+
+                                maintainAspectRatio:
+                                    false
+
+                            }
+
+                        }
+                    );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to load statistics:",
+                    error
+                );
+
+            }
+
+        }
+
+
+
+        /*
+         * Refresh button
+         *
+         * Reload both the alert table
+         * and the charts.
+         */
+        async function refreshDashboard() {
+
+            await Promise.all([
+                loadAlerts(),
+                loadStats()
+            ]);
+
+        }
+
+
+
+        /*
+         * Manual refresh
+         */
         document
-            .getElementById("refreshButton")
+            .getElementById(
+                "refreshButton"
+            )
             .addEventListener(
                 "click",
-                loadAlerts
+                refreshDashboard
             );
 
 
-        // Load alerts automatically
-        // when the dashboard opens.
-        loadAlerts();
+
+        /*
+         * Initial dashboard load
+         */
+        refreshDashboard();
 
     </script>
 
+
 </body>
+
 </html>
