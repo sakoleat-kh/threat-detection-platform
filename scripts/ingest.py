@@ -14,6 +14,7 @@ from app.detection.rules.successful_after_failures import SuccessfulAfterFailure
 from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
 from app.detection.rules.xss_attempt import XSSAttemptRule
 from app.services.ingestion import IngestionResult, ingest_logs
+from app.services.detection_engine import build_engine
 
 def build_engine() -> DetectionEngine:
     """Create an engine with all eight detection rules."""

@@ -8,6 +8,8 @@ from app.models.database import init_db
 from app.api.routers.alerts import router as alerts_router
 from app.api.routers.stats import router as stats_router
 
+from app.api.routers.ingest import router as ingest_router
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize the database when the application starts."""
@@ -26,3 +28,4 @@ def health_check() -> dict[str, str]:
 
 app.include_router(alerts_router)
 app.include_router(stats_router)
+app.include_router(ingest_router)
