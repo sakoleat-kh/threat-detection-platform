@@ -9,6 +9,7 @@ from app.api.routers.alerts import router as alerts_router
 from app.api.routers.stats import router as stats_router
 
 from app.api.routers.ingest import router as ingest_router
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,6 +21,8 @@ app = FastAPI(
     title="Threat detection Platform",
     lifespan=lifespan,
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
