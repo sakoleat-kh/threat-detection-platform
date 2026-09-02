@@ -65,6 +65,7 @@ def get_alerts_filtered(
     rule_id: str | None = None,
     technique_id: str | None = None,
     source_ip: str | None = None,
+    tactic: str | None = None,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
     limit: int = 20,
@@ -85,6 +86,11 @@ def get_alerts_filtered(
     if source_ip is not None:
         statement = statement.where(
             AlertRecord.source_ip == source_ip
+        )
+
+    if tactic is not None:
+        satement = statement.where(
+            AlertRecord.tactic == tactic
         )
 
     if start_date is not None:

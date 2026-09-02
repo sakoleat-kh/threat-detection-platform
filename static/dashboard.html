@@ -45,9 +45,7 @@
                 Alert Statistics
             </h2>
 
-
             <div class="row g-3">
-
 
                 <!-- Alerts by Rule -->
                 <div class="col-md-4">
@@ -70,23 +68,9 @@
 
                                     <span
                                         class="badge bg-danger float-end"
+                                        id="ruleStatCount"
                                     >
                                         12
-                                    </span>
-
-                                </p>
-
-
-                                <p class="mb-0">
-
-                                    <strong>
-                                        Other Rules
-                                    </strong>
-
-                                    <span
-                                        class="badge bg-secondary float-end"
-                                    >
-                                        0
                                     </span>
 
                                 </p>
@@ -171,7 +155,6 @@
 
                 </div>
 
-
             </div>
 
         </section>
@@ -189,7 +172,6 @@
                         Alert Distribution
                     </h2>
 
-
                     <div class="row g-4">
 
 
@@ -204,10 +186,7 @@
                                         Alerts by Rule
                                     </h3>
 
-
-                                    <div
-                                        style="height: 300px;"
-                                    >
+                                    <div style="height: 300px;">
 
                                         <canvas
                                             id="ruleChart"
@@ -222,7 +201,6 @@
                         </div>
 
 
-
                         <!-- Tactic Chart -->
                         <div class="col-md-6">
 
@@ -234,10 +212,7 @@
                                         Alerts by MITRE Tactic
                                     </h3>
 
-
-                                    <div
-                                        style="height: 300px;"
-                                    >
+                                    <div style="height: 300px;">
 
                                         <canvas
                                             id="tacticChart"
@@ -251,8 +226,142 @@
 
                         </div>
 
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- Alert Filters -->
+        <section class="mb-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h2 class="h5 mb-3">
+                        Filter Alerts
+                    </h2>
+
+
+                    <div class="row g-3">
+
+
+                        <!-- Rule -->
+                        <div class="col-md-3">
+
+                            <label
+                                for="ruleFilter"
+                                class="form-label"
+                            >
+                                Rule
+                            </label>
+
+                            <select
+                                id="ruleFilter"
+                                class="form-select"
+                            >
+
+                                <option value="">
+                                    All Rules
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Tactic -->
+                        <div class="col-md-3">
+
+                            <label
+                                for="tacticFilter"
+                                class="form-label"
+                            >
+                                Tactic
+                            </label>
+
+                            <select
+                                id="tacticFilter"
+                                class="form-select"
+                            >
+
+                                <option value="">
+                                    All Tactics
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Start Date -->
+                        <div class="col-md-3">
+
+                            <label
+                                for="startDate"
+                                class="form-label"
+                            >
+                                Start Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="startDate"
+                                class="form-control"
+                            >
+
+                        </div>
+
+
+                        <!-- End Date -->
+                        <div class="col-md-3">
+
+                            <label
+                                for="endDate"
+                                class="form-label"
+                            >
+                                End Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="endDate"
+                                class="form-control"
+                            >
+
+                        </div>
+
 
                     </div>
+
+
+                    <!-- Filter Buttons -->
+                    <div class="mt-3">
+
+                        <button
+                            id="applyFiltersButton"
+                            class="btn btn-primary me-2"
+                            type="button"
+                        >
+                            Apply Filters
+                        </button>
+
+
+                        <button
+                            id="clearFiltersButton"
+                            class="btn btn-outline-secondary"
+                            type="button"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
 
                 </div>
 
@@ -304,11 +413,10 @@
 
 
 
-                    <!-- Alerts Table -->
+                    <!-- Table -->
                     <div class="table-responsive">
 
                         <table class="table table-hover align-middle">
-
 
                             <thead class="table-dark">
 
@@ -333,7 +441,6 @@
                             </thead>
 
 
-
                             <tbody id="alertsTableBody">
 
                                 <tr>
@@ -348,7 +455,6 @@
                                 </tr>
 
                             </tbody>
-
 
                         </table>
 
@@ -396,173 +502,17 @@
 
 
         /*
-         * Load alerts from the FastAPI backend
-         */
-        async function loadAlerts() {
-
-            const tableBody =
-                document.getElementById(
-                    "alertsTableBody"
-                );
-
-
-            const alertCount =
-                document.getElementById(
-                    "alertCount"
-                );
-
-
-            // Loading state
-            tableBody.innerHTML = `
-                <tr>
-                    <td
-                        colspan="7"
-                        class="text-center text-muted"
-                    >
-                        Loading alerts...
-                    </td>
-                </tr>
-            `;
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/alerts/?limit=100"
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-
-                }
-
-
-                const alerts =
-                    await response.json();
-
-
-                // Update alert count
-                alertCount.textContent =
-                    `${alerts.length} alerts`;
-
-
-                // No alerts
-                if (alerts.length === 0) {
-
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td
-                                colspan="7"
-                                class="text-center text-muted"
-                            >
-                                No alerts found.
-                            </td>
-                        </tr>
-                    `;
-
-                    return;
-
-                }
-
-
-                // Remove old rows
-                tableBody.innerHTML = "";
-
-
-                // Create table rows
-                for (const alert of alerts) {
-
-                    const row =
-                        document.createElement(
-                            "tr"
-                        );
-
-
-                    row.innerHTML = `
-
-                        <td>
-                            ${alert.id}
-                        </td>
-
-                        <td>
-                            ${alert.rule_id}
-                        </td>
-
-                        <td>
-                            <span class="badge bg-danger">
-                                ${alert.severity.toUpperCase()}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${alert.technique_id ?? "-"}
-                        </td>
-
-                        <td>
-                            ${alert.tactic ?? "-"}
-                        </td>
-
-                        <td>
-                            ${alert.source_type}
-                        </td>
-
-                        <td>
-                            ${alert.username ?? "-"}
-                        </td>
-
-                    `;
-
-
-                    tableBody.appendChild(row);
-
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "Failed to load alerts:",
-                    error
-                );
-
-
-                tableBody.innerHTML = `
-                    <tr>
-                        <td
-                            colspan="7"
-                            class="text-center text-danger"
-                        >
-                            Failed to load alerts.
-                        </td>
-                    </tr>
-                `;
-
-
-                alertCount.textContent =
-                    "Error";
-
-            }
-
-        }
-
-
-
-        /*
-         * Load statistics from the FastAPI backend
+         * Load statistics.
+         *
+         * The /stats/ endpoint is also used to
+         * populate the Rule and Tactic dropdowns.
          */
         async function loadStats() {
 
             try {
 
                 const response =
-                    await fetch(
-                        "/stats/"
-                    );
+                    await fetch("/stats/");
 
 
                 if (!response.ok) {
@@ -579,7 +529,121 @@
 
 
                 /*
-                 * Extract rule statistics
+                 * -----------------------------
+                 * Rule dropdown
+                 * -----------------------------
+                 */
+                const ruleFilter =
+                    document.getElementById(
+                        "ruleFilter"
+                    );
+
+
+                const currentRule =
+                    ruleFilter.value;
+
+
+                ruleFilter.innerHTML = `
+                    <option value="">
+                        All Rules
+                    </option>
+                `;
+
+
+                for (
+                    const rule of
+                    Object.keys(stats.by_rule)
+                ) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value = rule;
+                    option.textContent = rule;
+
+                    ruleFilter.appendChild(
+                        option
+                    );
+
+                }
+
+
+                // Restore previous selection
+                if (
+                    currentRule &&
+                    Object.keys(stats.by_rule)
+                        .includes(currentRule)
+                ) {
+
+                    ruleFilter.value =
+                        currentRule;
+
+                }
+
+
+
+                /*
+                 * -----------------------------
+                 * Tactic dropdown
+                 * -----------------------------
+                 */
+                const tacticFilter =
+                    document.getElementById(
+                        "tacticFilter"
+                    );
+
+
+                const currentTactic =
+                    tacticFilter.value;
+
+
+                tacticFilter.innerHTML = `
+                    <option value="">
+                        All Tactics
+                    </option>
+                `;
+
+
+                for (
+                    const tactic of
+                    Object.keys(stats.by_tactic)
+                ) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value = tactic;
+                    option.textContent = tactic;
+
+                    tacticFilter.appendChild(
+                        option
+                    );
+
+                }
+
+
+                // Restore previous selection
+                if (
+                    currentTactic &&
+                    Object.keys(stats.by_tactic)
+                        .includes(currentTactic)
+                ) {
+
+                    tacticFilter.value =
+                        currentTactic;
+
+                }
+
+
+
+                /*
+                 * -----------------------------
+                 * Rule chart
+                 * -----------------------------
                  */
                 const ruleLabels =
                     Object.keys(
@@ -593,28 +657,6 @@
                     );
 
 
-                /*
-                 * Extract tactic statistics
-                 */
-                const tacticLabels =
-                    Object.keys(
-                        stats.by_tactic
-                    );
-
-
-                const tacticValues =
-                    Object.values(
-                        stats.by_tactic
-                    );
-
-
-
-                /*
-                 * Destroy existing charts
-                 *
-                 * This prevents duplicate Chart.js
-                 * instances if the charts are refreshed.
-                 */
                 if (ruleChart) {
 
                     ruleChart.destroy();
@@ -622,19 +664,6 @@
                 }
 
 
-                if (tacticChart) {
-
-                    tacticChart.destroy();
-
-                }
-
-
-
-                /*
-                 * Bar chart
-                 *
-                 * Shows alert counts by detection rule.
-                 */
                 ruleChart =
                     new Chart(
                         document.getElementById(
@@ -646,7 +675,8 @@
 
                             data: {
 
-                                labels: ruleLabels,
+                                labels:
+                                    ruleLabels,
 
                                 datasets: [
                                     {
@@ -695,11 +725,29 @@
 
 
                 /*
-                 * Doughnut chart
-                 *
-                 * Shows alert distribution
-                 * by MITRE tactic.
+                 * -----------------------------
+                 * Tactic chart
+                 * -----------------------------
                  */
+                const tacticLabels =
+                    Object.keys(
+                        stats.by_tactic
+                    );
+
+
+                const tacticValues =
+                    Object.values(
+                        stats.by_tactic
+                    );
+
+
+                if (tacticChart) {
+
+                    tacticChart.destroy();
+
+                }
+
+
                 tacticChart =
                     new Chart(
                         document.getElementById(
@@ -755,24 +803,330 @@
 
 
         /*
-         * Refresh button
-         *
-         * Reload both the alert table
-         * and the charts.
+         * Build the /alerts/ URL from
+         * the selected filters.
          */
-        async function refreshDashboard() {
+        function buildAlertsUrl() {
 
-            await Promise.all([
-                loadAlerts(),
-                loadStats()
-            ]);
+            const params =
+                new URLSearchParams();
+
+
+            const rule =
+                document.getElementById(
+                    "ruleFilter"
+                ).value;
+
+
+            const tactic =
+                document.getElementById(
+                    "tacticFilter"
+                ).value;
+
+
+            const startDate =
+                document.getElementById(
+                    "startDate"
+                ).value;
+
+
+            const endDate =
+                document.getElementById(
+                    "endDate"
+                ).value;
+
+
+
+            /*
+             * Only add parameters that
+             * actually have a value.
+             */
+            if (rule) {
+
+                params.set(
+                    "rule_id",
+                    rule
+                );
+
+            }
+
+
+            if (tactic) {
+
+                params.set(
+                    "tactic",
+                    tactic
+                );
+
+            }
+
+
+            if (startDate) {
+
+                params.set(
+                    "start_date",
+                    startDate
+                );
+
+            }
+
+
+            if (endDate) {
+
+                params.set(
+                    "end_date",
+                    endDate
+                );
+
+            }
+
+
+            // Always request up to 100 alerts
+            params.set(
+                "limit",
+                "100"
+            );
+
+
+            return `/alerts/?${params.toString()}`;
 
         }
 
 
 
         /*
-         * Manual refresh
+         * Load alerts using the currently
+         * selected filters.
+         */
+        async function loadAlerts() {
+
+            const tableBody =
+                document.getElementById(
+                    "alertsTableBody"
+                );
+
+
+            const alertCount =
+                document.getElementById(
+                    "alertCount"
+                );
+
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="text-center text-muted"
+                    >
+                        Loading alerts...
+                    </td>
+                </tr>
+            `;
+
+
+            try {
+
+                const url =
+                    buildAlertsUrl();
+
+
+                console.log(
+                    "Loading alerts from:",
+                    url
+                );
+
+
+                const response =
+                    await fetch(url);
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const alerts =
+                    await response.json();
+
+
+                alertCount.textContent =
+                    `${alerts.length} alerts`;
+
+
+                /*
+                 * No results
+                 */
+                if (alerts.length === 0) {
+
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td
+                                colspan="7"
+                                class="text-center text-muted"
+                            >
+                                No alerts found.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+
+                }
+
+
+                tableBody.innerHTML = "";
+
+
+                /*
+                 * Create a row for every alert.
+                 */
+                for (
+                    const alert of alerts
+                ) {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${alert.id}
+                        </td>
+
+                        <td>
+                            ${alert.rule_id}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge bg-danger"
+                            >
+                                ${alert.severity.toUpperCase()}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            ${alert.technique_id ?? "-"}
+                        </td>
+
+                        <td>
+                            ${alert.tactic ?? "-"}
+                        </td>
+
+                        <td>
+                            ${alert.source_type}
+                        </td>
+
+                        <td>
+                            ${alert.username ?? "-"}
+                        </td>
+
+                    `;
+
+
+                    tableBody.appendChild(
+                        row
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to load alerts:",
+                    error
+                );
+
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="text-center text-danger"
+                        >
+                            Failed to load alerts.
+                        </td>
+                    </tr>
+                `;
+
+
+                alertCount.textContent =
+                    "Error";
+
+            }
+
+        }
+
+
+
+        /*
+         * Apply filters.
+         *
+         * The page does NOT reload.
+         */
+        document
+            .getElementById(
+                "applyFiltersButton"
+            )
+            .addEventListener(
+                "click",
+                loadAlerts
+            );
+
+
+
+        /*
+         * Clear all filters.
+         */
+        document
+            .getElementById(
+                "clearFiltersButton"
+            )
+            .addEventListener(
+                "click",
+                function () {
+
+                    document.getElementById(
+                        "ruleFilter"
+                    ).value = "";
+
+
+                    document.getElementById(
+                        "tacticFilter"
+                    ).value = "";
+
+
+                    document.getElementById(
+                        "startDate"
+                    ).value = "";
+
+
+                    document.getElementById(
+                        "endDate"
+                    ).value = "";
+
+
+                    loadAlerts();
+
+                }
+            );
+
+
+
+        /*
+         * Manual refresh.
+         *
+         * Keep the current filters.
          */
         document
             .getElementById(
@@ -780,15 +1134,29 @@
             )
             .addEventListener(
                 "click",
-                refreshDashboard
+                function () {
+
+                    loadAlerts();
+                    loadStats();
+
+                }
             );
 
 
 
         /*
-         * Initial dashboard load
+         * Initial page load.
          */
-        refreshDashboard();
+        async function initializeDashboard() {
+
+            await loadStats();
+
+            await loadAlerts();
+
+        }
+
+
+        initializeDashboard();
 
     </script>
 

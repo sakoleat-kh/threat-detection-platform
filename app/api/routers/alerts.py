@@ -1,6 +1,6 @@
 """API routers for querying detection alerts."""
 
-from datetime import datetime
+from datetime import datetime, date, time
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
@@ -47,16 +47,37 @@ def get_alerts(
     rule_id: str | None = None,
     technique_id: str | None = None,
     source_ip: str | None = None,
+    tactic: str | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[AlertResponse]:
     """Return filtered and paginated detection alerts."""
+
+    start_datetime = None
+    end_datetime = None
+
+    if start_date is not None:
+        start_datetime = datetime.combine(
+            start_date,
+            time.min,
+        )
+
+    if end_date is not None:
+        end_datetime = datetime.combine(
+            end_date,
+            time.max,
+        )
 
     return get_alerts_filtered(
         session,
         rule_id=rule_id,
         technique_id=technique_id,
         source_ip=source_ip,
+        tactic=tactic,
+        start_date=start_datetime,
+        end_date=end_datetime,
         limit=limit,
         offset=offset,
     )
