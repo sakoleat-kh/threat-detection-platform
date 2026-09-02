@@ -1,7 +1,4 @@
-## Current Status
-
-- Linux authentication log parser implemented.
-- SSH failed password, accepted password, and invalid user events are supported.
-- Unknown valid syslog events events are preserved as `EventType.UNKNOWN`.
-- Pytest suite added for SSH parsing.
-- All 4 parser tests currently pass.SQLAlchemy==2.0.52
+fastapi==0.141.1
+uvicorn==0.52.4
+SQLAlchemy==2.0.52
+python-multipart
