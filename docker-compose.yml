@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    container_name: threat-detection-platform
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////app/data/alerts.db
+    volumes:
+      - threat_detection_data:/app/data
+
+volumes:
+  threat_detection_data:
