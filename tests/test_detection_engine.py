@@ -76,7 +76,7 @@ class FailingRule(DetectionRule):
         """Raise an exception to test engine resilience."""
         raise ValueError("intentional test failure")
 
-    def test_engine_continues_when_rule_raises_exception(caplog):
+def test_engine_continues_when_rule_raises_exception(caplog):
         """A failing rule should not prevent later rules from running."""
 
         events = [
@@ -103,7 +103,7 @@ class FailingRule(DetectionRule):
         assert "FailingRule" in caplog.text
         assert "intentional test failure" in caplog.text
 
-    def test_engine_with_empty_events_returns_no_alerts():
+def test_engine_with_empty_events_returns_no_alerts():
         """an empty event list should produce zero alers."""
 
         engine = DetectionEngine()

@@ -89,7 +89,7 @@ def get_alerts_filtered(
         )
 
     if tactic is not None:
-        satement = statement.where(
+        statement = statement.where(
             AlertRecord.tactic == tactic
         )
 

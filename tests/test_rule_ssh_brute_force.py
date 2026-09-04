@@ -9,7 +9,7 @@ BASE_TIME = datetime(2026, 8, 23, 12, 0, 0, tzinfo=timezone.utc)
 
 def make_event(
     event_id: str,
-    source_ip: str,
+    source_ip: str | None,
     timestamp: datetime,
     event_type: str = "ssh_failed_password",
 ) -> NormalizedEvent:
@@ -189,3 +189,16 @@ def test_exact_window_boundary():
     alerts = SSHBruteForceRule().evaluate(events)
 
     assert len(alerts) == 1
+
+def test_event_without_source_ip_is_skipped():
+    """Failed SSH events without a source IP should be ignored."""
+
+    event = make_event(
+        "missing_ip",
+        None,
+        BASE_TIME,
+    )
+
+    alerts = SSHBruteForceRule().evaluate([event])
+
+    assert alerts == []

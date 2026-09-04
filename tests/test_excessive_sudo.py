@@ -169,3 +169,17 @@ def test_engine_runs_excessive_sudo_rule():
     assert len(alerts) == 1
     assert alerts[0].rule_name == "excessive_sudo"
     assert alerts[0].event.username == "ubuntu"
+
+def test_sudo_event_without_username_or_source_ip_is_skipped():
+    """Sudo events without an identifiable source should be ignored."""
+
+    event = make_event(
+        "missing-source",
+        None,
+        BASE_TIME,
+        "sudo_command",
+    )
+
+    alerts = ExcessiveSudoRule().evaluate([event])
+
+    assert alerts == []

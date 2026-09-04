@@ -142,3 +142,37 @@ def test_different_ips_are_isolated():
 
     assert len(alerts) == 1
     assert alerts[0].event.source_ip == "10.0.0.2"
+
+def test_old_failures_are_removed_from_window():
+    """Failures outside the five-minute window should be discarded."""
+
+    events = [
+        make_event(
+            "fail-1",
+            "10.0.0.5",
+            BASE_TIME,
+            "ssh_failed_password",
+        ),
+        make_event(
+            "fail-2",
+            "10.0.0.5",
+            BASE_TIME + timedelta(minutes=3),
+            "ssh_failed_password",
+        ),
+        make_event(
+            "fail-3",
+            "10.0.0.5",
+            BASE_TIME + timedelta(minutes=6),
+            "ssh_failed_password",
+        ),
+        make_event(
+            "success",
+            "10.0.0.5",
+            BASE_TIME + timedelta(minutes=7),
+            "ssh_accepted_password",
+        ),
+    ]
+
+    alerts = SuccessfulAfterFailuresRule().evaluate(events)
+
+    assert alerts == []

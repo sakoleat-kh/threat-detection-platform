@@ -44,6 +44,30 @@ def test_get_alerts_with_filters():
         assert alert["rule_id"] == "excessive_sudo"
         assert alert["technique_id"] == "T1548.003"
 
+def test_get_alerts_with_invalid_filters():
+    """Alerts endpoint filters alerts from given start date."""
+
+    response = client.get(
+        "/alerts/",
+        params={"start_date": "2026-03-27"},
+    )
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+def test_get_alerts_with_end_date():
+
+    """Alerts endpoint filters alerts up to the given end date."""
+
+    response = client.get(
+        "/alerts/",
+        params={"end_date": "2026-03-27"},
+    )
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+
 def test_get_alert_by_id():
     """Alert detail endpoint returns an existing alert."""
 
@@ -80,3 +104,13 @@ def test_get_statu():
     assert isinstance(stats["by_rule"], dict)
     assert isinstance(stats["by_technique"], dict)
     assert isinstance(stats["by_tactic"], dict)
+
+def test_app_lifespan():
+    """Application lifespan initializes the database."""
+
+    with TestClient(app) as client:
+        response = client.get("/health")
+
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}

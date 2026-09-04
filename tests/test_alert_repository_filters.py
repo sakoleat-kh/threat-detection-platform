@@ -340,3 +340,14 @@ def test_pagination_returns_correct_total_pages(session, seeded_alerts):
 
     assert len(all_ids) == 12
     assert len(set(all_ids)) == 12
+
+def test_filter_by_tactic(session, seeded_alerts):
+    """Filtering by tactic returns only matching alerts."""
+
+    results = get_alerts_filtered(
+        session,
+        tactic="Credential Access",
+    )
+
+    assert len(results) == 4
+    assert all(alert.tactic == "Credential Access" for alert in results)

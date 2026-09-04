@@ -195,3 +195,42 @@ def test_engine_runs_directory_scanning_rule():
     assert len(alerts) == 1
     assert alerts[0].rule_name == "directory_scanning"
     assert alerts[0].event.source_ip == "10.0.0.5"
+
+def test_event_without_source_ip_is_skipped():
+    """Events without a source IP should be ignored."""
+
+    event = NormalizedEvent(
+        event_id="missing_ip",
+        timestamp=BASE_TIME,
+        source_type="access",
+        source_ip=None,
+        username=None,
+        raw_event_type="access",
+        raw_data={
+            "path": "/admin",
+            "status_code": 404,
+        },
+    )
+
+    alerts = DirectoryScanningRule().evaluate([event])
+
+    assert alerts == []
+
+def test_event_without_path_is_skipped():
+    """Access events without a path should be ignored."""
+
+    event = NormalizedEvent(
+        event_id="missing_paht",
+        timestamp=BASE_TIME,
+        source_type="access",
+        source_ip="10.0.0.1",
+        username=None,
+        raw_event_type="access",
+        raw_data={
+            "status_code": 404,
+        },
+    )
+
+    alerts = DirectoryScanningRule().evaluate([event])
+
+    assert alerts == []

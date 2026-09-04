@@ -87,3 +87,21 @@ def test_broken_request_returns_none():
     )
 
     assert parse_access_line(line) is None
+
+def test_reader_skips_blank_lines(tmp_path):
+    """Access log reader should ignore blank lines."""
+
+    log_file = tmp_path / "blank_lines.log"
+
+    log_file.write_text(
+        "\n"
+        "   \n"
+        '54.36.149.41 - - [22/Jan/2019:03:56:14 +0330] '
+        '"GET /index.html HTTP/1.1" 200 1543 "-" "Mozilla/5.0" "-"\n',
+        encoding="utf-8"
+    )
+
+    events = list(read_access_log(log_file))
+
+    assert len(events) == 1
+    assert events[0].path == "/index.html"
