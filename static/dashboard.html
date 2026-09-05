@@ -73,7 +73,7 @@
 
                                 <p class="mb-2">
 
-                                    <strong>
+                                    <strong id="ruleStatName">
                                         excessive_sudo
                                     </strong>
 
@@ -110,12 +110,13 @@
 
                                 <p class="mb-0">
 
-                                    <strong>
+                                    <strong id="techniqueStatName">
                                         T1548.003
                                     </strong>
 
                                     <span
                                         class="badge bg-warning text-dark float-end"
+                                        id="techniqueStatCount"
                                     >
                                         12
                                     </span>
@@ -146,12 +147,13 @@
 
                                 <p class="mb-0">
 
-                                    <strong>
+                                    <strong id="tacticStatName">
                                         Privilege Escalation
                                     </strong>
 
                                     <span
                                         class="badge bg-primary float-end"
+                                        id="tacticStatCount"
                                     >
                                         12
                                     </span>
@@ -521,7 +523,7 @@
         <div class="container text-center">
 
             <small>
-                Threat Detection Platform — Phase 4
+                Threat Detection Platform — Phase 5
             </small>
 
         </div>
@@ -576,8 +578,25 @@
 
                 const stats =
                     await response.json();
+                const ruleCount =
+                    stats.by_rule["excessive_sudo"] ?? 0;
 
+                const techniqueCount =
+                    stats.by_technique["T1548.003"] ?? 0;
 
+                const tacticCount =
+                    stats.by_tactic["Privilege Escalation"] ?? 0;
+                document.getElementById(
+                    "ruleStatCount"
+                ).textContent = ruleCount;
+
+                document.getElementById(
+                    "techniqueStatCount"
+                ).textContent = techniqueCount;
+
+                document.getElementById(
+                    "tacticStatCount"
+                ).textContent = tacticCount;
                 /*
                  * -----------------------------
                  * Rule dropdown

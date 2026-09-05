@@ -100,10 +100,15 @@ def test_get_statu():
 
     assert "by_rule" in stats
     assert "by_technique" in stats
+    assert "by_tactic" in stats
 
     assert isinstance(stats["by_rule"], dict)
     assert isinstance(stats["by_technique"], dict)
     assert isinstance(stats["by_tactic"], dict)
+
+    assert stats["by_rule"]["excessive_sudo"] > 0
+    assert stats["by_technique"]["T1548.003"] > 0
+    assert stats["by_tactic"]["Privilege Escalation"] > 0
 
 def test_app_lifespan():
     """Application lifespan initializes the database."""
