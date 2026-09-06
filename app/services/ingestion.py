@@ -1,8 +1,6 @@
-"""End-to-eng log ingestion and alert persistence service."""
-
+"""End-to-end log ingestion and alert persistence service."""
 
 import time
-
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -30,6 +28,7 @@ class IngestionResult:
     database_seconds: float
     total_seconds: float
 
+
 def ingest_logs(
     auth_log_path: str | Path,
     access_log_path: str | Path,
@@ -40,8 +39,8 @@ def ingest_logs(
 
     total_start = time.perf_counter()
 
-    normalize_events = []
-    auth_lines_processed= 0
+    normalized_events = []
+    auth_lines_processed = 0
     access_lines_processed = 0
 
     parse_normalize_start = time.perf_counter()
@@ -52,14 +51,14 @@ def ingest_logs(
             reference_date,
         ):
             auth_lines_processed += 1
-            normalize_events.append(
+            normalized_events.append(
                 normalize_auth_event(event)
             )
 
     if access_log_path is not None:
         for event in read_access_log(access_log_path):
             access_lines_processed += 1
-            normalize_events.append(
+            normalized_events.append(
                 normalize_access_event(event)
             )
 
@@ -68,7 +67,7 @@ def ingest_logs(
     )
     detection_start = time.perf_counter()
 
-    alerts = engine.run(normalize_events)
+    alerts = engine.run(normalized_events)
 
     detection_seconds = (
         time.perf_counter() - detection_start

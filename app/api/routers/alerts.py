@@ -1,19 +1,22 @@
 """API routers for querying detection alerts."""
 
-from datetime import datetime, date, time
+from datetime import date, datetime, time
 
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.models.database import SessionLocal
-from app.repository.alert_repository import get_alerts_filtered, get_alert_by_id
-from fastapi import APIRouter, Depends, HTTPException, Query
-
+from app.repository.alert_repository import (
+    get_alert_by_id,
+    get_alerts_filtered,
+)
 
 router = APIRouter(
     prefix="/alerts",
     tags=["alerts"],
 )
+
 
 class AlertResponse(BaseModel):
     """Response model for a persisted detection alert."""
@@ -35,15 +38,17 @@ class AlertResponse(BaseModel):
     created_at: datetime
     raw_event_json: dict
 
+
 def get_db():
     """Provide a database session for an API request."""
 
     with SessionLocal() as session:
         yield session
 
+
 @router.get("/", response_model=list[AlertResponse])
 def get_alerts(
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db),  # noqa: B008
     rule_id: str | None = None,
     technique_id: str | None = None,
     source_ip: str | None = None,
@@ -82,10 +87,11 @@ def get_alerts(
         offset=offset,
     )
 
+
 @router.get("/{alert_id}", response_model=AlertResponse)
 def get_alert(
     alert_id: int,
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db),  # noqa: B008
 ) -> AlertResponse:
     """Return one alert by database ID."""
 

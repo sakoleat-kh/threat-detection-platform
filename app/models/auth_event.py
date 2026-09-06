@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+
 
 class EventType(Enum):
     SSH_FAILED_PASSWORD = "ssh_failed_password"
@@ -15,19 +15,20 @@ class EventType(Enum):
     USER_ADDED = "user_added"
     UNKNOWN = "unknown"
 
+
 @dataclass
 class AuthLogEvent:
     raw_line: str
     timestamp: datetime
     host: str
     process: str
-    pid: Optional[int]
+    pid: int | None
     event_type: EventType
-    username: Optional[str]
-    source_ip: Optional[str]
-    port: Optional[int]
-    command: Optional[str]
-    target_user: Optional[str]
-    uid: Optional[int]
-    gid: Optional[int]
-    home_dir: Optional[str]
+    username: str | None
+    source_ip: str | None
+    port: int | None
+    command: str | None
+    target_user: str | None
+    uid: int | None
+    gid: int | None
+    home_dir: str | None

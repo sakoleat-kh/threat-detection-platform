@@ -1,5 +1,6 @@
-from app.parsers.apache_parser import parse_access_line
 from app.parsers.access_log_reader import read_access_log
+from app.parsers.apache_parser import parse_access_line
+
 
 def test_garbage_line_returns_none():
     event = parse_access_line("this is completely garbage")

@@ -3,9 +3,8 @@
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
-from app.models.database import Base
-from app.models import db_alert
-import app.models.database as database
+from app.models import database
+
 
 def test_init_db_creates_tables(monkeypatch):
     """Database initialization creates the required tables."""

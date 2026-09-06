@@ -1,4 +1,4 @@
-"""MITRE ATT&CK mappings for detetion rules."""
+"""MITRE ATT&CK mappings for detection rules."""
 
 from app.models.alert import Alert
 
@@ -44,6 +44,7 @@ RULE_MITRE_MAPPING = {
         "tactic": "Reconnaissance",
     },
 }
+
 
 def enrich_alert_with_mitre(alert: Alert) -> Alert:
     """Add MITRE ATT&CK information to an alert."""

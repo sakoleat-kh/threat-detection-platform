@@ -2,7 +2,6 @@
 
 import re
 from datetime import datetime
-from typing import Optional
 
 from app.models.access_event import AccessLogEvent
 
@@ -19,7 +18,8 @@ CLF_PATTERN = re.compile(
     r'"[^"]*"$'
 )
 
-def parse_access_line(raw_line: str) -> Optional[AccessLogEvent]:
+
+def parse_access_line(raw_line: str) -> AccessLogEvent | None:
     """Parse one Apache Combined Log Format line."""
 
     match = CLF_PATTERN.match(raw_line.rstrip("\n"))
@@ -36,7 +36,7 @@ def parse_access_line(raw_line: str) -> Optional[AccessLogEvent]:
 
     method, target, protocol = request_parts
 
-    if "?"in target:
+    if "?" in target:
         path, query_string = target.split("?", 1)
     else:
         path = target

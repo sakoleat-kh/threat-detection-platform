@@ -2,11 +2,11 @@
 
 from collections import defaultdict, deque
 from datetime import timedelta
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+
 
 class DirectoryScanningRule(DetectionRule):
     """Detect many distinct paths with a high 404 ratio from one IP."""
@@ -17,15 +17,15 @@ class DirectoryScanningRule(DetectionRule):
         not_found_ratio: float = 0.80,
         window_minutes: int = 5,
     ) -> None:
-        """Initialize directory scanning threshoulds."""
+        """Initialize directory scanning thresholds."""
         self.path_threshold = path_threshold
         self.not_found_ratio = not_found_ratio
         self.window = timedelta(minutes=window_minutes)
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return alerts for suspicious directory scanning."""
         events_by_ip = defaultdict(list)
 
@@ -41,7 +41,7 @@ class DirectoryScanningRule(DetectionRule):
 
             events_by_ip[event.source_ip].append(event)
 
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for source_ip, ip_events in events_by_ip.items():
             ip_events.sort(key=lambda event: event.timestamp)

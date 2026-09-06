@@ -3,6 +3,7 @@
 from datetime import datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.services.detection_engine import build_engine
@@ -13,9 +14,10 @@ router = APIRouter(
     tags=["ingest"],
 )
 
+
 @router.post("/")
 async def ingest_file(
-    file: UploadFile = File(...),
+    file: UploadFile = File(...),  # noqa: B008
     log_type: str = Form(...),
 ) -> dict[str, int]:
     """Ingest an uploaded authentication or access log file."""
@@ -47,7 +49,7 @@ async def ingest_file(
                 temporary_path if log_type == "access" else None
             ),
             engine=build_engine(),
-            reference_date=datetime.now(),
+            reference_date=datetime.now(),  # noqa: DTZ005
         )
 
         lines_processed = (

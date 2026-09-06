@@ -1,7 +1,6 @@
 """Tests for the detection engine."""
 
 import logging
-
 from datetime import datetime, timezone
 
 from app.detection.engine import DetectionEngine

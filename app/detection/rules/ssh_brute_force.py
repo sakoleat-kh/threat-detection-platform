@@ -2,7 +2,6 @@
 
 from collections import defaultdict, deque
 from datetime import timedelta
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
@@ -21,7 +20,7 @@ class SSHBruteForceRule(DetectionRule):
         self.threshold = threshold
         self.window = timedelta(minutes=window_minutes)
 
-    def evaluate(self, events: List[NormalizedEvent]) -> List[Alert]:
+    def evaluate(self, events: list[NormalizedEvent]) -> list[Alert]:
         """Return alerts for source IPs reaching the threshold within the window."""
         events_by_ip = defaultdict(list)
 
@@ -44,7 +43,7 @@ class SSHBruteForceRule(DetectionRule):
             for event in ip_events:
                 window.append(event)
 
-                while(
+                while (
                     event.timestamp - window[0].timestamp
                     > self.window
                 ):

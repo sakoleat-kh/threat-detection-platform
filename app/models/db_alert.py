@@ -2,13 +2,14 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, JSON, String, Text
+from sqlalchemy import JSON, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.database import Base
 
+
 class AlertRecord(Base):
-    """Database repersentation of a detection alert."""
+    """Database representation of a detection alert."""
 
     __tablename__ = "alerts"
 

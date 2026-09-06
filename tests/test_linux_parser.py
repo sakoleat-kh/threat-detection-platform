@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from app.models.auth_event import EventType
 from app.parsers.linux_parser import parse_line
 
-REFERENCE_DATE = datetime(2026, 8, 16)
+REFERENCE_DATE = datetime(2026, 8, 16)  # noqa: DTZ001
+
 
 def test_failed_password():
     line = (
@@ -18,7 +19,7 @@ def test_failed_password():
     assert event.username == "admin"
     assert event.source_ip == "192.168.1.15"
     assert event.port == 51234
-    assert event.timestamp == datetime(2026, 8, 6, 9, 15, 22)
+    assert event.timestamp == datetime(2026, 8, 6, 9, 15, 22)  # noqa: DTZ001
 
 
 def test_accepted_password():
@@ -34,7 +35,8 @@ def test_accepted_password():
     assert event.username == "user1"
     assert event.source_ip == "192.168.1.20"
     assert event.port == 41234
-    assert event.timestamp == datetime(2026, 8, 6, 9, 15, 22)
+    assert event.timestamp == datetime(2026, 8, 6, 9, 15, 22)  # noqa: DTZ001
+
 
 def test_invalid_user():
     line = (
@@ -49,7 +51,7 @@ def test_invalid_user():
     assert event.username == "test"
     assert event.source_ip == "10.0.0.5"
     assert event.port == 33333
-    assert event.timestamp == datetime(2026, 8, 6, 9, 17, 22)
+    assert event.timestamp == datetime(2026, 8, 6, 9, 17, 22)  # noqa: DTZ001
 
 
 def test_garbage_line_returns_none():
@@ -77,18 +79,20 @@ def test_user_added():
     assert event.home_dir == "/home/day9_test"
     assert event.timestamp == datetime(2026, 8, 16, 12, 47, 46, 43193, tzinfo=timezone.utc)
 
+
 def test_december_january_year_rollover():
     line = (
         "Dec 31 23:30:00 ubuntu sshd[9999]: "
         "Failed password for admin from 192.168.1.50 port 55555 ssh2"
     )
-    reference_date = datetime(2027, 1, 2)
+    reference_date = datetime(2027, 1, 2)  # noqa: DTZ001
 
     event = parse_line(line, reference_date)
 
     assert event is not None
     assert event.event_type == EventType.SSH_FAILED_PASSWORD
-    assert event.timestamp == datetime(2026, 12, 31, 23, 30, 0)
+    assert event.timestamp == datetime(2026, 12, 31, 23, 30, 0)  # noqa: DTZ001
+
 
 def test_sudo_command():
     line = (
@@ -105,6 +109,7 @@ def test_sudo_command():
     assert event.target_user == "root"
     assert event.command == "/usr/bin/whoami"
 
+
 def test_sudo_auth_failure():
     line = (
         "Aug 6 09:21:00 ubuntu sudo: "
@@ -115,6 +120,7 @@ def test_sudo_auth_failure():
 
     assert event is not None
     assert event.event_type == EventType.SUDO_AUTH_FAILURE
+
 
 def test_unknown_event():
     line = (

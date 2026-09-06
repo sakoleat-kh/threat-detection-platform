@@ -3,7 +3,8 @@ from datetime import datetime
 from app.models.auth_event import EventType
 from app.parsers.linux_parser import parse_line
 
-REFERENCE_DATE = datetime(2026, 8, 17)
+REFERENCE_DATE = datetime(2026, 8, 17)  # noqa: DTZ001
+
 
 def test_invalid_syslog_timestamp_returns_unknown():
     line = (

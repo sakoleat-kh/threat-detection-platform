@@ -1,7 +1,5 @@
 """Detection rule for suspicious User-Agent strings."""
 
-from typing import List
-
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
@@ -15,15 +13,16 @@ SUSPICIOUS_USER_AGENTS = [
     "masscan",
 ]
 
+
 class SuspiciousUserAgentRule(DetectionRule):
     """Detect known scanning tools and missing User-Agent strings."""
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return low-severity alerts for suspicious User-Agent values."""
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for event in events:
             if event.source_type != "access":

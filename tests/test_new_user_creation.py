@@ -6,6 +6,7 @@ from app.detection.engine import DetectionEngine
 from app.detection.rules.new_user_creation import NewUserCreationRule
 from app.models.normalized_event import NormalizedEvent
 
+
 def make_event(
     event_id: str,
     username: str,

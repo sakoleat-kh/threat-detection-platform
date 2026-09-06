@@ -7,11 +7,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from app.models.database import Base
-from app.models.db_alert import AlertRecord
 from app.models.alert import Alert
+from app.models.database import Base
+from app.models.db_alert import AlertRecord  # noqa: F401
 from app.models.normalized_event import NormalizedEvent
-from app.repository.alert_repository import get_alert_by_id, save_alert, get_all_alerts
+from app.repository.alert_repository import (
+    get_alert_by_id,
+    get_all_alerts,
+    save_alert,
+)
 
 
 @pytest.fixture
@@ -30,6 +34,7 @@ def session():
         yield session
 
     engine.dispose()
+
 
 def make_alert() -> Alert:
     """Create a sample alert for repository tests."""

@@ -1,20 +1,19 @@
-"""Detection rule for newly created user accounts."""
-
-from typing import List
+"""Detect every newly created user account."""
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+
 
 class NewUserCreationRule(DetectionRule):
     """detect every newly created user account."""
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return an alert for every user-added event."""
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for event in events:
             if event.raw_event_type != "user_added":

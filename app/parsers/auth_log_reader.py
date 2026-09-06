@@ -1,11 +1,12 @@
 """Stream and parse Linux auth.log files into structured events."""
 
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
-from typing import Iterator
 
 from app.models.auth_event import AuthLogEvent
 from app.parsers.linux_parser import parse_line
+
 
 def read_auth_log(
     file_path: str | Path,

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
+
 @dataclass
 class NormalizedEvent:
     """Common event representation consumed by the detection engine."""

@@ -2,12 +2,12 @@
 
 from datetime import datetime, timezone
 
-from app.mitre.mapping import enrich_alert_with_mitre
-from app.models.alert import Alert
-from app.models.normalized_event import NormalizedEvent
 from app.detection.engine import DetectionEngine
 from app.detection.rules.sql_injection import SQLInjectionRule
-from app.mitre.mapping import RULE_MITRE_MAPPING
+from app.mitre.mapping import RULE_MITRE_MAPPING, enrich_alert_with_mitre
+from app.models.alert import Alert
+from app.models.normalized_event import NormalizedEvent
+
 
 def make_alert(rule_name: str) -> Alert:
     """Create an alert for testing."""

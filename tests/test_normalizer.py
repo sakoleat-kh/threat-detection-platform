@@ -5,12 +5,13 @@ from datetime import datetime, timezone
 from app.models.access_event import AccessLogEvent
 from app.models.auth_event import AuthLogEvent, EventType
 from app.models.normalized_event import NormalizedEvent
-from app.services.normalizer import (normalize_auth_event, normalize_access_event)
+from app.services.normalizer import normalize_access_event, normalize_auth_event
+
 
 def test_normalize_auth_event():
     event = AuthLogEvent(
         raw_line="test auth event",
-        timestamp=datetime(2026, 1, 1, 12, 0, 0),
+        timestamp=datetime(2026, 1, 1, 12, 0, 0),  # noqa: DTZ001
         host="test_host",
         process="sshd",
         pid=123,
@@ -33,10 +34,11 @@ def test_normalize_auth_event():
     assert normalized.raw_data["command"] == "/usr/bin/id"
     assert normalized.raw_data["target_user"] == "root"
 
+
 def test_normalize_unknown_auth_event():
     event = AuthLogEvent(
         raw_line="unknown event",
-        timestamp=datetime(2026, 1, 1, 12, 0, 0),
+        timestamp=datetime(2026, 1, 1, 12, 0, 0),  # noqa: DTZ001
         host="test-host",
         process="sshd",
         pid=123,
@@ -57,6 +59,7 @@ def test_normalize_unknown_auth_event():
     assert normalized.source_ip is None
     assert normalized.username is None
     assert normalized.raw_event_type == "unknown"
+
 
 def test_normalize_access_event():
     event = AccessLogEvent(
@@ -87,6 +90,7 @@ def test_normalize_access_event():
     assert normalized.raw_data["status_code"] == 200
     assert normalized.raw_data["user_agent"] == "Mozilla/5.0"
 
+
 def test_normalize_access_query_string():
     event = AccessLogEvent(
         client_ip="10.0.0.5",
@@ -108,6 +112,7 @@ def test_normalize_access_query_string():
 
     assert normalized.raw_data["path"] == "/search"
     assert normalized.raw_data["query_string"] == "q=test"
+
 
 def test_normalize_access_sqli_payload():
     event = AccessLogEvent(

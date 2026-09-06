@@ -7,10 +7,10 @@ from app.detection.rules.directory_scanning import DirectoryScanningRule
 from app.detection.rules.excessive_sudo import ExcessiveSudoRule
 from app.detection.rules.new_user_creation import NewUserCreationRule
 from app.detection.rules.sql_injection import SQLInjectionRule
-from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
-from app.detection.rules.xss_attempt import XSSAttemptRule
 from app.detection.rules.ssh_brute_force import SSHBruteForceRule
 from app.detection.rules.successful_after_failures import SuccessfulAfterFailuresRule
+from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
+from app.detection.rules.xss_attempt import XSSAttemptRule
 from app.models.normalized_event import NormalizedEvent
 
 BASE_TIME = datetime(2026, 8, 27, 12, 0, tzinfo=timezone.utc)

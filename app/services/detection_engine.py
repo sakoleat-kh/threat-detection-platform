@@ -1,4 +1,4 @@
-"""Factory for creating the plaform detection engine."""
+"""Factory for creating the platform detection engine."""
 
 from app.detection.engine import DetectionEngine
 from app.detection.rules.directory_scanning import DirectoryScanningRule
@@ -11,7 +11,7 @@ from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
 from app.detection.rules.xss_attempt import XSSAttemptRule
 
 
-def build_engine () -> DetectionEngine:
+def build_engine() -> DetectionEngine:
     """Create a engine with all eight detection rules."""
 
     engine = DetectionEngine()

@@ -12,27 +12,29 @@ from app.detection.rules.ssh_brute_force import SSHBruteForceRule
 from app.detection.rules.successful_after_failures import SuccessfulAfterFailuresRule
 from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
 from app.detection.rules.xss_attempt import XSSAttemptRule
-from app.parsers.auth_log_reader import read_auth_log
 from app.parsers.access_log_reader import read_access_log
+from app.parsers.auth_log_reader import read_auth_log
 from app.services.normalizer import normalize_access_event, normalize_auth_event
 
 ACCESS_LOG = "data/sample_logs/access_sample.log"
 AUTH_LOG = "data/sample_logs/auth_sample.log"
 
-def load_events():
-    """Load and normalize saple access and authentication logs."""
+
+def load_events() -> list:
+    """Load and normalize sample access and authentication logs."""
 
     events = []
 
     for event in read_access_log(ACCESS_LOG):
         events.append(normalize_access_event(event))
 
-    reference_date = datetime.now()
+    reference_date = datetime.now()  # noqa: DTZ005
 
     for event in read_auth_log(AUTH_LOG, reference_date):
         events.append(normalize_auth_event(event))
 
     return events
+
 
 def build_engine() -> DetectionEngine:
     """Create an engine containing all eight Phase 2 rules."""
@@ -50,7 +52,8 @@ def build_engine() -> DetectionEngine:
 
     return engine
 
-def print_summary(alerts):
+
+def print_summary(alerts: list) -> None:
     """Print a readable MITRE ATT&CK alert summary."""
 
     counts = Counter(
@@ -91,7 +94,8 @@ def print_summary(alerts):
         print(f"        {technique_name}")
     print("=" * 90)
 
-def main():
+
+def main() -> None:
     """Run the complete pipeline."""
 
     events = load_events()

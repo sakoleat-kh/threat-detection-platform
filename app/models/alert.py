@@ -1,7 +1,9 @@
 """Data model for detection alerts."""
 
 from dataclasses import dataclass
+
 from app.models.normalized_event import NormalizedEvent
+
 
 @dataclass
 class Alert:

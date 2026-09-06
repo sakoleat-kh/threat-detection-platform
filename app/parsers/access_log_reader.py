@@ -1,14 +1,14 @@
 """Stream and parse Apache access.log files into structured events."""
 
 import logging
-
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from app.models.access_event import AccessLogEvent
 from app.parsers.apache_parser import parse_access_line
 
 logger = logging.getLogger(__name__)
+
 
 def read_access_log(
     file_path: str | Path,

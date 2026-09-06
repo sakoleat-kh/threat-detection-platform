@@ -1,4 +1,4 @@
-"""Command-line interdace for streaming Linux auth logs."""
+"""Command-line interface for streaming Linux auth logs."""
 
 import argparse
 from collections import Counter
@@ -6,7 +6,8 @@ from datetime import datetime
 
 from app.parsers.auth_log_reader import read_auth_log
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Read and summarize a Linux auth.log file."
     )
@@ -18,7 +19,7 @@ def main():
 
     args = parser.parse_args()
 
-    reference_date = datetime.now()
+    reference_date = datetime.now()  # noqa: DTZ005
 
     counts = Counter()
 
@@ -38,6 +39,7 @@ def main():
 
     for event_type, count in counts.items():
         print(f"{event_type.value:<25} {count}")
+
 
 if __name__ == "__main__":
     main()

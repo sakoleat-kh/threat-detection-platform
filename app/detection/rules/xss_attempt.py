@@ -1,7 +1,6 @@
 """Detection rule for cross-site scripting attempts."""
 
 import re
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
@@ -39,15 +38,16 @@ XSS_PATTERNS = [
     ),
 ]
 
+
 class XSSAttemptRule(DetectionRule):
-    """detect recognizable XSS payloads in access events."""
+    """Detect recognizable XSS payloads in access events."""
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return alerts for access events matching XSS signatures."""
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for event in events:
             if event.source_type != "access":

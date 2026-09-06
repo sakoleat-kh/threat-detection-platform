@@ -2,9 +2,9 @@
 
 from datetime import datetime, timedelta, timezone
 
+from app.detection.engine import DetectionEngine
 from app.detection.rules.excessive_sudo import ExcessiveSudoRule
 from app.models.normalized_event import NormalizedEvent
-from app.detection.engine import DetectionEngine
 
 BASE_TIME = datetime(2026, 8, 25, 12, 0, tzinfo=timezone.utc)
 

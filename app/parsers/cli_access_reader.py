@@ -1,11 +1,12 @@
-"""Comand-line interface for streaming Apache access logs."""
+"""Command-line interface for streaming Apache access logs."""
 
 import argparse
 from collections import Counter
 
 from app.parsers.access_log_reader import read_access_log
 
-def main():
+
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Read and summarize an Apache access.log file."
     )
@@ -19,7 +20,7 @@ def main():
 
     counts = Counter()
 
-    for index, event in enumerate(read_access_log(args.file_path),start=1):
+    for index, event in enumerate(read_access_log(args.file_path), start=1):
         counts[event.status_code] += 1
 
         if index < 10:
@@ -28,8 +29,9 @@ def main():
     print("\nHTTP Status Summary")
     print("---------------------")
 
-    for status_code, count in sorted (counts.items()):
+    for status_code, count in sorted(counts.items()):
         print(f"{status_code:<25} {count}")
+
 
 if __name__ == "__main__":
     main()

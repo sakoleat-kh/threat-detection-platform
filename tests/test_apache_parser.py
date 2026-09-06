@@ -1,5 +1,6 @@
 from app.parsers.apache_parser import parse_access_line
 
+
 def test_normal_get_request():
     line = (
         '54.36.149.41 - - '

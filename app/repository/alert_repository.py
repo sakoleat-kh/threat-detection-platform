@@ -1,7 +1,7 @@
 """Repository functions for persistent detection alerts."""
 
-from typing import List, Optional
 from datetime import datetime, timezone
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,7 @@ from app.models.db_alert import AlertRecord
 
 
 def save_alert(session: Session, alert: Alert) -> AlertRecord:
-    """save an Alert as an AlertRecord and return the stored record."""
+    """Save an Alert as an AlertRecord and return the stored record."""
 
     record = AlertRecord(
         rule_id=alert.rule_name,
@@ -34,21 +34,23 @@ def save_alert(session: Session, alert: Alert) -> AlertRecord:
 
     return record
 
+
 def get_alert_by_id(
     session: Session,
     alert_id: int,
-) -> Optional[AlertRecord]:
+) -> AlertRecord | None:
     """Return an alert by database ID, or None if it does not exist."""
 
     statement = select(AlertRecord).where(AlertRecord.id == alert_id)
 
     return session.scalars(statement).first()
 
+
 def get_all_alerts(
     session: Session,
     limit: int = 20,
     offset: int = 0,
-) -> List[AlertRecord]:
+) -> list[AlertRecord]:
     """Return alerts using limit and offset pagination."""
 
     statement = (
@@ -60,6 +62,7 @@ def get_all_alerts(
 
     return list(session.scalars(statement).all())
 
+
 def get_alerts_filtered(
     session: Session,
     rule_id: str | None = None,
@@ -70,7 +73,7 @@ def get_alerts_filtered(
     end_date: datetime | None = None,
     limit: int = 20,
     offset: int = 0,
-) -> List[AlertRecord]:
+) -> list[AlertRecord]:
     """Return alerts matching the provided filters with pagination."""
 
     statement = select(AlertRecord)
@@ -80,27 +83,27 @@ def get_alerts_filtered(
 
     if technique_id is not None:
         statement = statement.where(
-            AlertRecord.technique_id == technique_id
+            AlertRecord.technique_id == technique_id,
         )
 
     if source_ip is not None:
         statement = statement.where(
-            AlertRecord.source_ip == source_ip
+            AlertRecord.source_ip == source_ip,
         )
 
     if tactic is not None:
         statement = statement.where(
-            AlertRecord.tactic == tactic
+            AlertRecord.tactic == tactic,
         )
 
     if start_date is not None:
         statement = statement.where(
-            AlertRecord.event_timestamp >= start_date
+            AlertRecord.event_timestamp >= start_date,
         )
 
     if end_date is not None:
         statement = statement.where(
-            AlertRecord.event_timestamp <= end_date
+            AlertRecord.event_timestamp <= end_date,
         )
 
     statement = (
@@ -112,6 +115,7 @@ def get_alerts_filtered(
 
     return list(session.scalars(statement).all())
 
+
 def get_alert_stats(session: Session) -> dict[str, dict[str, int]]:
     """Return alert counts grouped by rule, technique, and tactic."""
 
@@ -122,8 +126,8 @@ def get_alert_stats(session: Session) -> dict[str, dict[str, int]]:
 
     technique_statement = (
         select(AlertRecord.technique_id, func.count(AlertRecord.id))
-        .where(AlertRecord.tactic.is_not(None))
-        .group_by(AlertRecord.tactic)
+        .where(AlertRecord.technique_id.is_not(None))
+        .group_by(AlertRecord.technique_id)
     )
 
     tactic_statement = (

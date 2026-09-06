@@ -10,7 +10,7 @@ def test_resolve_syslog_timestamp_following_year():
         month="Jan",
         day="10",
         time_str="12:30:00",
-        reference_date=datetime(2026, 8, 16),
+        reference_date=datetime(2026, 8, 16),  # noqa: DTZ001
     )
 
-    assert result == datetime(2027, 1, 10, 12, 30, 0)
+    assert result == datetime(2027, 1, 10, 12, 30, 0)  # noqa: DTZ001

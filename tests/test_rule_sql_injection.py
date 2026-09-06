@@ -2,10 +2,9 @@
 
 from datetime import datetime, timezone
 
+from app.detection.engine import DetectionEngine
 from app.detection.rules.sql_injection import SQLInjectionRule
 from app.models.normalized_event import NormalizedEvent
-from app.detection.engine import DetectionEngine
-
 
 BASE_TIME = datetime(2026, 8, 26, 15, 0, tzinfo=timezone.utc)
 
@@ -195,6 +194,8 @@ def test_insert_into_signature():
 
     alerts = SQLInjectionRule().evaluate(events)
 
+    assert len(alerts) == 1
+
 def test_update_set_signature():
     """UPDATE ... SET pattern should trigger."""
 
@@ -342,6 +343,8 @@ def test_hash_comment_signature():
     ]
 
     alerts = SQLInjectionRule().evaluate(events)
+
+    assert len(alerts) == 1
 
 def test_sql_looking_but_benign_request_does_not_trigger():
     """SQL-looking natural language should not trigger."""

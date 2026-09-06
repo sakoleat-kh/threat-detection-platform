@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 
+
 def resolve_syslog_timestamp(
     month: str,
     day: str,
@@ -9,8 +10,7 @@ def resolve_syslog_timestamp(
     reference_date: datetime,
 ) -> datetime:
     """
-    Resolve a traditional syslog timestamp that does not contaion a year.
-
+    Resolve a traditional syslog timestamp that does not contain a year.
     Example:
         month="Dec"
         day="31"
@@ -22,9 +22,9 @@ def resolve_syslog_timestamp(
     
     """
 
-    month_number = datetime.strptime(month, "%b").month
+    month_number = datetime.strptime(month, "%b").month  # noqa: DTZ007
 
-    candidate = datetime(
+    candidate = datetime(  # noqa: DTZ001
         year=reference_date.year,
         month=month_number,
         day=int(day),

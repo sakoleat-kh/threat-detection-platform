@@ -1,7 +1,7 @@
 """Initialize the SQLite database."""
 
 from app.models.database import init_db
-from app.models.db_alert import AlertRecord
+
 
 def main() -> None:
     """Create the database tables."""

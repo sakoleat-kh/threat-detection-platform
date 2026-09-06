@@ -1,7 +1,6 @@
 """Detection rule for SQL injection attempts."""
 
 import re
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
@@ -47,10 +46,10 @@ class SQLInjectionRule(DetectionRule):
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return alerts for access events matching SQLI signatures."""
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for event in events:
             if event.source_type != "access":

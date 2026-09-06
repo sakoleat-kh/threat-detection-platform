@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 
 from app.api.main import app
 
-
 client = TestClient(app)
 
 AUTH_LOG = Path("data/sample_logs/auth_sample.log")

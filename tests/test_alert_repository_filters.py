@@ -11,6 +11,7 @@ from app.models.database import Base
 from app.models.db_alert import AlertRecord
 from app.repository.alert_repository import get_alerts_filtered
 
+
 @pytest.fixture
 def session():
     """Provide an isolated in-memory SQLite session for each test."""
@@ -246,13 +247,13 @@ def test_filter_by_technique_id(session, seeded_alerts):
 def test_filter_by_date_range(session, seeded_alerts):
     """Start and end dates restrict results to the requested range."""
 
-    start_date = datetime(
+    start_date = datetime(  # noqa: DTZ001
         2026,
         8,
         24,
     )
 
-    end_date = datetime(
+    end_date = datetime(  # noqa: DTZ001
         2026,
         8,
         30,

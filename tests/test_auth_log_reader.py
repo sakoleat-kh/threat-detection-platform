@@ -20,7 +20,7 @@ def test_reader_skips_blank_lines(tmp_path):
     events = list(
         read_auth_log(
             log_file,
-            datetime(2026, 8, 16),
+            datetime(2026, 8, 16),  # noqa: DTZ001
         )
     )
 

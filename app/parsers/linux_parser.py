@@ -3,7 +3,6 @@
 import logging
 import re
 from datetime import datetime
-from typing import Optional
 
 from app.models.auth_event import AuthLogEvent, EventType
 from app.parsers.timestamp_utils import resolve_syslog_timestamp
@@ -82,7 +81,7 @@ USER_ADDED_PATTERN = re.compile(
 )
 
 
-def parse_line(raw_line: str, reference_date: datetime) -> Optional[AuthLogEvent]:
+def parse_line(raw_line: str, reference_date: datetime) -> AuthLogEvent | None:
     """
     Parse one Linux auth.log line.
     Returns:
@@ -278,7 +277,7 @@ def handle_sudo_auth_failure(base, raw_line, match, timestamp):
         timestamp=timestamp,
         host=base["host"],
         process=base["process"],
-        pid=int(base["pid"]) if base ["pid"] else None,
+        pid=int(base["pid"]) if base["pid"] else None,
         event_type=EventType.SUDO_AUTH_FAILURE,
         username=None,
         source_ip=None,

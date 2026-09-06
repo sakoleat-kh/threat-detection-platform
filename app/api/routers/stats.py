@@ -11,15 +11,17 @@ router = APIRouter(
     tags=["stats"],
 )
 
+
 def get_db():
     """Provide a database session for an API request."""
 
     with SessionLocal() as session:
         yield session
 
+
 @router.get("/")
 def get_stats(
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db),  # noqa: B008
 ) -> dict[str, dict[str, int]]:
     """Return alert counts grouped by rule, technique, and tactic."""
 

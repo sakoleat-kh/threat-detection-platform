@@ -2,11 +2,11 @@
 
 from collections import defaultdict, deque
 from datetime import timedelta
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+
 
 class ExcessiveSudoRule(DetectionRule):
     """Detect excessive sudo commands and repeated sudo failures."""
@@ -24,8 +24,8 @@ class ExcessiveSudoRule(DetectionRule):
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return alerts for excessive sudo activity."""
         events_by_source = defaultdict(list)
 
@@ -46,7 +46,7 @@ class ExcessiveSudoRule(DetectionRule):
 
             events_by_source[source].append(event)
 
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for source, source_events in events_by_source.items():
             source_events.sort(key=lambda event: event.timestamp)
@@ -60,7 +60,7 @@ class ExcessiveSudoRule(DetectionRule):
 
                     while (
                         event.timestamp - command_window[0].timestamp
-                        >self.window
+                        > self.window
                     ):
                         command_window.popleft()
 

@@ -2,9 +2,10 @@
 
 from dataclasses import asdict
 
+from app.models.access_event import AccessLogEvent
 from app.models.auth_event import AuthLogEvent
 from app.models.normalized_event import NormalizedEvent
-from app.models.access_event import AccessLogEvent
+
 
 def normalize_auth_event(event: AuthLogEvent) -> NormalizedEvent:
     """Convert an AuthLogEvent into a NormalizedEvent."""
@@ -29,6 +30,7 @@ def normalize_auth_event(event: AuthLogEvent) -> NormalizedEvent:
         raw_event_type=event_type,
         raw_data=raw_data,
     )
+
 
 def normalize_access_event(event: AccessLogEvent) -> NormalizedEvent:
     """Convert an AccessLogEvent into a NormalizedEvent."""

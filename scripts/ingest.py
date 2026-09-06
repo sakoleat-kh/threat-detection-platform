@@ -1,36 +1,12 @@
 """Command-line interface for log ingestion."""
 
-from pathlib import Path
 import argparse
 from datetime import datetime
+from pathlib import Path
 
-from app.detection.engine import DetectionEngine
-from app.detection.rules.directory_scanning import DirectoryScanningRule
-from app.detection.rules.excessive_sudo import ExcessiveSudoRule
-from app.detection.rules.new_user_creation import NewUserCreationRule
-from app.detection.rules.sql_injection import SQLInjectionRule
-from app.detection.rules.ssh_brute_force import SSHBruteForceRule
-from app.detection.rules.successful_after_failures import SuccessfulAfterFailuresRule
-from app.detection.rules.suspicious_user_agent import SuspiciousUserAgentRule
-from app.detection.rules.xss_attempt import XSSAttemptRule
-from app.services.ingestion import IngestionResult, ingest_logs
 from app.services.detection_engine import build_engine
+from app.services.ingestion import IngestionResult, ingest_logs
 
-def build_engine() -> DetectionEngine:
-    """Create an engine with all eight detection rules."""
-
-    engine = DetectionEngine()
-
-    engine.register_rule(SSHBruteForceRule())
-    engine.register_rule(SuccessfulAfterFailuresRule())
-    engine.register_rule(ExcessiveSudoRule())
-    engine.register_rule(NewUserCreationRule())
-    engine.register_rule(DirectoryScanningRule())
-    engine.register_rule(SQLInjectionRule())
-    engine.register_rule(XSSAttemptRule())
-    engine.register_rule(SuspiciousUserAgentRule())
-
-    return engine
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -117,7 +93,7 @@ def main() -> None:
         auth_log_path=args.auth_log,
         access_log_path=args.access_log,
         engine=build_engine(),
-        reference_date=datetime.now(),
+        reference_date=datetime.now(),  # noqa: DTZ005
     )
 
     print_summary(result)

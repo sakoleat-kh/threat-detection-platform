@@ -2,11 +2,11 @@
 
 from collections import defaultdict, deque
 from datetime import timedelta
-from typing import List
 
 from app.detection.rule_base import DetectionRule
 from app.models.alert import Alert
 from app.models.normalized_event import NormalizedEvent
+
 
 class SuccessfulAfterFailuresRule(DetectionRule):
     """Detect successful SSH login following repeated failures."""
@@ -22,8 +22,8 @@ class SuccessfulAfterFailuresRule(DetectionRule):
 
     def evaluate(
         self,
-        events: List[NormalizedEvent],
-    ) -> List[Alert]:
+        events: list[NormalizedEvent],
+    ) -> list[Alert]:
         """Return alerts for successful logins preceded by failures."""
         events_by_ip = defaultdict(list)
 
@@ -38,12 +38,12 @@ class SuccessfulAfterFailuresRule(DetectionRule):
                 continue
             events_by_ip[event.source_ip].append(event)
 
-        alerts: List[Alert] = []
+        alerts: list[Alert] = []
 
         for source_ip, ip_events in events_by_ip.items():
             ip_events.sort(key=lambda event: event.timestamp)
 
-            failed_window  = deque()
+            failed_window = deque()
 
             for event in ip_events:
                 if event.raw_event_type == "ssh_failed_password":
