@@ -72,9 +72,9 @@ The dashboard presents inconsistent information in different sections, which can
 
 Status:
 
-- Confirmed during bug bash
-- Not fixed during Day 81
-- Requires investigation and correction during a later hardening day
+- Confirmed during Day 81 bug bash
+- Fixed during Day 82
+- Verified after the fix
 
 ### P3 — Low: Dashboard footer still references Phase 4
 
@@ -92,9 +92,9 @@ This is a cosmetic/documentation issue that makes the dashboard appear outdated 
 
 Status:
 
-- Confirmed during bug bash
-- Not fixed during Day 81
-- Should be corrected during later polish work
+- Confirmed during Day 81 bug bash
+- Fixed during Day 82
+- Verified after the fix
 
 ## Tested Functionality With No Issues Found
 
