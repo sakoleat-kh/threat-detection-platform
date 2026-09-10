@@ -1,7 +1,6 @@
 services:
   app:
     build: .
-    container_name: threat-detection-platform
     ports:
       - "8000:8000"
     environment:
