@@ -578,21 +578,45 @@
 
                 const stats =
                     await response.json();
-                const ruleCount =
-                    stats.by_rule["excessive_sudo"] ?? 0;
+                const getTopEntry = (data) => {
+                    const entries = Object.entries(data);
 
-                const techniqueCount =
-                    stats.by_technique["T1548.003"] ?? 0;
+                    if (entries.length === 0) {
+                        return ["None", 0];
+                    }
+                    return entries.reduce(
+                        (top, current) =>
+                            current[1] > top[1] ? current : top
+                    );
+                };
 
-                const tacticCount =
-                    stats.by_tactic["Privilege Escalation"] ?? 0;
+                const [topRule, ruleCount] =
+                    getTopEntry(stats.by_rule);
+                const [topTechnique, techniqueCount] =
+                    getTopEntry(stats.by_technique);
+
+                const [topTactic, tacticCount] =
+                    getTopEntry(stats.by_tactic);
+
+                document.getElementById(
+                    "ruleStatName"
+                ).textContent = topRule;
+
                 document.getElementById(
                     "ruleStatCount"
                 ).textContent = ruleCount;
 
                 document.getElementById(
+                    "techniqueStatName"
+                ).textContent = topTechnique;
+
+                document.getElementById(
                     "techniqueStatCount"
                 ).textContent = techniqueCount;
+
+                document.getElementById(
+                    "tacticStatName"
+                ).textContent = topTactic;
 
                 document.getElementById(
                     "tacticStatCount"
