@@ -26,4 +26,6 @@ SessionLocal = sessionmaker(
 
 def init_db() -> None:
     """Create all database tables if they do not already exist."""
+    from app.models.db_alert import AlertRecord  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
