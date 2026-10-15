@@ -1,9 +1,11 @@
 """Repository functions for persistent detection alerts."""
 
+import json
 from datetime import datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.models.alert import Alert
 from app.models.db_alert import AlertRecord
@@ -33,6 +35,59 @@ def save_alert(session: Session, alert: Alert) -> AlertRecord:
     session.refresh(record)
 
     return record
+
+
+def _equals(column, value) -> ColumnElement[bool]:
+    """Compare a column to a value, using IS NULL when the value is None."""
+
+    if value is None:
+        return column.is_(None)
+
+    return column == value
+
+
+def _normalized_json(data: object) -> object:
+    """Round-trip data through JSON so stored and new values compare equal."""
+
+    return json.loads(json.dumps(data, sort_keys=True, default=str))
+
+
+def alert_exists(session: Session, alert: Alert) -> bool:
+    """Return True if an identical alert is already stored.
+
+    Two alerts are the same when they come from the same rule and the same
+    log event: same source type, IP, user, event time, and raw event data.
+    """
+
+    statement = select(AlertRecord).where(
+        AlertRecord.rule_id == alert.rule_name,
+        AlertRecord.source_type == alert.event.source_type,
+        _equals(AlertRecord.source_ip, alert.event.source_ip),
+        _equals(AlertRecord.username, alert.event.username),
+        AlertRecord.event_timestamp == alert.event.timestamp,
+    )
+
+    new_raw = _normalized_json(alert.event.raw_data)
+
+    return any(
+        _normalized_json(record.raw_event_json) == new_raw
+        for record in session.scalars(statement)
+    )
+
+
+def save_alert_if_new(
+    session: Session,
+    alert: Alert,
+) -> AlertRecord | None:
+    """Save the alert unless an identical one exists.
+
+    Return the stored record, or None if the alert was a duplicate.
+    """
+
+    if alert_exists(session, alert):
+        return None
+
+    return save_alert(session, alert)
 
 
 def get_alert_by_id(
