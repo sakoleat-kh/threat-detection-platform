@@ -10,7 +10,7 @@ from app.detection.engine import DetectionEngine
 from app.models.database import SessionLocal
 from app.parsers.access_log_reader import read_access_log
 from app.parsers.auth_log_reader import read_auth_log
-from app.repository.alert_repository import save_alert
+from app.repository.alert_repository import save_alert_if_new
 from app.services.normalizer import normalize_access_event, normalize_auth_event
 
 
@@ -30,12 +30,19 @@ class IngestionResult:
 
 
 def ingest_logs(
-    auth_log_path: str | Path,
-    access_log_path: str | Path,
+    auth_log_path: str | Path | None,
+    access_log_path: str | Path | None,
     engine: DetectionEngine,
     reference_date: datetime,
+    max_new_alerts: int | None = None,
+    only_rule: str | None = None,
 ) -> IngestionResult:
-    """Parse, normalize, detect, enrich, and persist alerts."""
+    """Parse, normalize, detect, enrich, and persist alerts.
+
+    If only_rule is set, only alerts from that rule are kept.
+    If max_new_alerts is set, stop after that many new alerts are saved.
+    Alerts that already exist are skipped and do not count toward the limit.
+    """
 
     total_start = time.perf_counter()
 
@@ -69,6 +76,9 @@ def ingest_logs(
 
     alerts = engine.run(normalized_events)
 
+    if only_rule is not None:
+        alerts = [alert for alert in alerts if alert.rule_name == only_rule]
+
     detection_seconds = (
         time.perf_counter() - detection_start
     )
@@ -81,8 +91,11 @@ def ingest_logs(
 
     with SessionLocal() as session:
         for alert in alerts:
-            save_alert(session, alert)
-            alerts_saved += 1
+            if max_new_alerts is not None and alerts_saved >= max_new_alerts:
+                break
+
+            if save_alert_if_new(session, alert) is not None:
+                alerts_saved += 1
 
     database_seconds = (
         time.perf_counter() - database_start
