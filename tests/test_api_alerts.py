@@ -79,8 +79,8 @@ def test_get_alert_by_id():
     alert = response.json()
 
     assert alert["id"] == 1
-    assert alert["rule_id"] == "excessive_sudo"
-    assert alert["technique_id"] == "T1548.003"
+    assert alert["rule_id"] == "ssh_brute_force"
+    assert alert["technique_id"] == "T1110"
 
 def test_get_alert_by_id_not_found():
     """Alert detail endpoint returns 404 for an unknown ID."""

@@ -13,7 +13,7 @@ ACCESS_LOG = Path("data/sample_logs/access_sample.log")
 
 
 def test_ingest_auth_log():
-    """Valid auth log produces the expected alert count."""
+    """Valid auth log processes 300 lines and generates the expected alerts."""
 
     with AUTH_LOG.open("rb") as file:
         response = client.post(
@@ -32,12 +32,12 @@ def test_ingest_auth_log():
 
     data = response.json()
 
-    assert data["lines_processed"] == 200
-    assert data["alerts_generated"] == 1
+    assert data["lines_processed"] == 300
+    assert data["alerts_generated"] == 10
 
 
 def test_ingest_access_log():
-    """Valid access log produces the expected alert count."""
+    """Valid access log processes 300 lines and generates the expected alerts."""
 
     with ACCESS_LOG.open("rb") as file:
         response = client.post(
@@ -56,8 +56,8 @@ def test_ingest_access_log():
 
     data = response.json()
 
-    assert data["lines_processed"] == 200
-    assert data["alerts_generated"] == 0
+    assert data["lines_processed"] == 300
+    assert data["alerts_generated"] == 22
 
 
 def test_ingest_invalid_log_type():

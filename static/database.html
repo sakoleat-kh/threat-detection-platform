@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts Database - Threat Detection Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/dashboard.css" rel="stylesheet">
+    <script src="/static/theme.js"></script>
+</head>
+
+<body>
+<div id="topNav"></div>
+<script src="/static/nav.js"></script>
+<header class="app-header text-white py-4 mb-4">
+    <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h1 class="h2 mb-1">Alerts Database</h1>
+            <p class="mb-0 text-light opacity-75">Live view of the <code>alerts</code> table (SQLite), read through the API</p>
+        </div>
+        <div class="text-end">
+            <button id="refreshButton" class="btn btn-outline-light btn-sm" type="button">Refresh</button>
+            <div class="form-check form-switch d-inline-block ms-2 text-white">
+                <input class="form-check-input" type="checkbox" role="switch" id="autoRefresh" checked>
+                <label class="form-check-label small" for="autoRefresh">Auto-refresh (5 s)</label>
+            </div>
+            <div class="small opacity-75 mt-1" id="lastUpdated">Not loaded yet</div>
+        </div>
+    </div>
+</header>
+
+<main class="container-fluid px-4 pb-4">
+    <div id="errorBanner" class="alert alert-danger d-none" role="alert"></div>
+
+    <section class="card shadow-sm"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h6 mb-0">Table: alerts</h2>
+            <span id="rowInfo" class="badge text-bg-secondary">0 rows</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover table-striped align-middle mb-0">
+                <thead class="table-dark" id="tableHead"></thead>
+                <tbody id="tableBody">
+                    <tr><td class="text-center text-muted">Loading rows...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="small text-muted mt-2">Shows the newest 100 rows, newest first. Long values are cut off; hover over a cell to read it.</div>
+    </div></section>
+</main>
+
+<script src="/static/database.js"></script>
+</body>
+</html>
