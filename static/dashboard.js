@@ -52,7 +52,7 @@ function severityClass(severity) {
 function severityBadge(severity) {
     const badge = document.createElement("span");
     badge.className = `sev-tag ${severityClass(severity)}`;
-    badge.textContent = String(severity ?? "-").toUpperCase();
+    badge.textContent = String(severity ?? "-");
     return badge;
 }
 
@@ -116,13 +116,14 @@ async function loadStats() {
         if (ruleChart) ruleChart.destroy();
         ruleChart = new Chart($("ruleChart"), {
             type: "bar",
-            data: { labels: ruleNames, datasets: [{ label: "Alerts", data: ruleCounts, backgroundColor: chartTheme().bar }] },
+            data: { labels: ruleNames.map((n) => n.split("_")), datasets: [{ label: "Alerts", data: ruleCounts, backgroundColor: chartTheme().bar }] },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false,
                 layout: { padding: { top: 18 } },
-                plugins: { legend: { display: true } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                plugins: { legend: { display: false }, tooltip: { callbacks: { title: (items) => ruleNames[items[0].dataIndex] } } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { maxRotation: 0, minRotation: 0, autoSkip: false, font: { size: 11 } } } }
             },
             plugins: [valueLabels]
         });
@@ -140,7 +141,7 @@ async function loadStats() {
                     labels: tacticNames,
                     datasets: [{ data: Object.values(byTactic), backgroundColor: tacticNames.map((_, i) => TACTIC_COLORS[i % TACTIC_COLORS.length]), borderColor: chartTheme().border, borderWidth: 2 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "top" } } }
+                options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { position: "top" } } }
             });
         }
         return true;
@@ -151,7 +152,7 @@ async function loadStats() {
 }
 
 // ---------- Alerts (GET /alerts/ with filters) ----------
-function buildAlertsUrl() {
+function buildAlertsUrl(offset = 0) {
     const params = new URLSearchParams();
     const filters = {
         rule_id: $("ruleFilter").value,
@@ -163,6 +164,7 @@ function buildAlertsUrl() {
         if (value) params.set(key, value);
     }
     params.set("limit", "100");
+    if (offset > 0) params.set("offset", String(offset));
     return `/alerts/?${params.toString()}`;
 }
 
@@ -188,6 +190,50 @@ function makeCell(text, subText) {
     return cell;
 }
 
+const RECENT_COLLAPSED = 15;
+let recentAlerts = [];
+let recentExpanded = false;
+
+// The API returns the oldest alert first, so read every page and reverse: newest first.
+async function fetchAllAlerts() {
+    const all = [];
+    for (let page = 0; page < 20; page++) {
+        const response = await fetch(buildAlertsUrl(page * 100));
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const batch = await response.json();
+        all.push(...batch);
+        if (batch.length < 100) break;
+    }
+    return all.reverse();
+}
+
+function renderRecent() {
+    const tableBody = $("alertsTableBody");
+    const shown = recentExpanded ? recentAlerts : recentAlerts.slice(0, RECENT_COLLAPSED);
+    tableBody.replaceChildren(...shown.map((alert) => {
+        const row = document.createElement("tr");
+        row.className = "alert-row-clickable";
+        row.addEventListener("click", () => openAlertDetail(alert.id));
+
+        const severityCell = document.createElement("td");
+        severityCell.appendChild(severityBadge(alert.severity));
+
+        row.append(
+            makeCell(alert.id),
+            makeCell(alert.rule_id),
+            severityCell,
+            makeCell(alert.technique_id, alert.technique_name),
+            makeCell(alert.tactic),
+            makeCell(alert.source_ip ?? alert.source_type, alert.source_ip ? alert.source_type : null),
+            makeCell(alert.username)
+        );
+        return row;
+    }));
+    const more = $("recentMore");
+    more.hidden = recentAlerts.length <= RECENT_COLLAPSED;
+    more.textContent = recentExpanded ? "Show fewer" : `Show all ${recentAlerts.length}`;
+}
+
 async function loadAlerts() {
     const tableBody = $("alertsTableBody");
     const alertCount = $("alertCount");
@@ -200,42 +246,22 @@ async function loadAlerts() {
     }
     $("filterMessage").textContent = "";
 
-    tableBody.replaceChildren(messageRow("Loading alerts...", "text-muted"));
+    if (!tableBody.querySelector(".alert-row-clickable")) tableBody.replaceChildren(messageRow("Loading alerts...", "text-muted"));
 
     try {
-        const response = await fetch(buildAlertsUrl());
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const alerts = await response.json();
+        const alerts = await fetchAllAlerts();
         if (requestId !== alertsRequestId) return true; // a newer request replaced this one
 
         alertCount.textContent = `${alerts.length} alert${alerts.length === 1 ? "" : "s"}`;
         alertCount.className = `badge ${alerts.length ? "text-bg-danger" : "text-bg-secondary"}`;
 
+        recentAlerts = alerts;
         if (alerts.length === 0) {
             tableBody.replaceChildren(messageRow("No alerts found.", "text-muted"));
+            $("recentMore").hidden = true;
             return true;
         }
-
-        const rows = alerts.map((alert) => {
-            const row = document.createElement("tr");
-            row.className = "alert-row-clickable";
-            row.addEventListener("click", () => openAlertDetail(alert.id));
-
-            const severityCell = document.createElement("td");
-            severityCell.appendChild(severityBadge(alert.severity));
-
-            row.append(
-                makeCell(alert.id),
-                makeCell(alert.rule_id),
-                severityCell,
-                makeCell(alert.technique_id, alert.technique_name),
-                makeCell(alert.tactic),
-                makeCell(alert.source_ip ?? alert.source_type, alert.source_ip ? alert.source_type : null),
-                makeCell(alert.username)
-            );
-            return row;
-        });
-        tableBody.replaceChildren(...rows);
+        renderRecent();
         return true;
     } catch (error) {
         console.error("Failed to load alerts:", error);
@@ -247,6 +273,7 @@ async function loadAlerts() {
         return false;
     }
 }
+$("recentMore").addEventListener("click", () => { recentExpanded = !recentExpanded; renderRecent(); });
 
 // ---------- Alert detail (GET /alerts/{id}) ----------
 function detailRow(label, valueNode) {
@@ -328,7 +355,55 @@ function renderSeverityChart(counts) {
             labels: names.map((name, i) => `${name}  ${Math.round((values[i] / total) * 100)}%`),
             datasets: [{ data: values, backgroundColor: ["#d32f2f", "#f57c1f", "#f5b014", "#4caf50"], borderColor: chartTheme().panel, borderWidth: 2 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "right" } } }
+        options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { position: "right" } } }
+    });
+}
+
+// ---------- Alerts over time (line chart, built from the same alerts) ----------
+let timeChart = null;
+const SEV_ORDER = ["critical", "high", "medium", "low"];
+const SEV_COLORS = { critical: "#d32f2f", high: "#f57c1f", medium: "#f5b014", low: "#4caf50" };
+
+function renderTimeChart(alerts) {
+    const points = alerts
+        .map((a) => ({ t: new Date(a.event_timestamp).getTime(), s: String(a.severity ?? "").toLowerCase() }))
+        .filter((p) => !Number.isNaN(p.t) && p.s in SEV_COLORS);
+
+    if (timeChart) { timeChart.destroy(); timeChart = null; }
+    toggleChartEmpty("timeChart", "timeChartEmpty", points.length === 0);
+    if (points.length === 0) return;
+
+    let lo = Infinity, hi = -Infinity;
+    for (const p of points) { if (p.t < lo) lo = p.t; if (p.t > hi) hi = p.t; }
+    const span = hi - lo;
+    // bucket size: 1 min, 15 min, 1 hour, 1 day or 1 week, depending on how much time the alerts cover
+    const step = span <= 36e5 ? 6e4 : span <= 432e5 ? 9e5 : span <= 2592e5 ? 36e5 : span <= 7776e6 ? 864e5 : 6048e5;
+    const start = Math.floor(lo / step) * step;
+    const n = Math.floor((hi - start) / step) + 1;
+
+    const series = Object.fromEntries(SEV_ORDER.map((s) => [s, new Array(n).fill(0)]));
+    for (const p of points) series[p.s][Math.floor((p.t - start) / step)] += 1;
+    const labels = Array.from({ length: n }, (_, i) => {
+        const d = new Date(start + i * step);
+        return step < 864e5
+            ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : d.toLocaleDateString([], { month: "short", day: "numeric" });
+    });
+
+    timeChart = new Chart($("timeChart"), {
+        type: "line",
+        data: {
+            labels,
+            datasets: SEV_ORDER.filter((s) => series[s].some((v) => v > 0)).map((s) => ({
+                label: s[0].toUpperCase() + s.slice(1), data: series[s],
+                borderColor: SEV_COLORS[s], backgroundColor: SEV_COLORS[s], tension: 0.3, pointRadius: 2, borderWidth: 2
+            }))
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, animation: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { maxTicksLimit: 6 } } }
+        }
     });
 }
 
@@ -336,10 +411,12 @@ function renderSeverityChart(counts) {
 async function loadSeverityCounts() {
     try {
         const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+        const everyAlert = [];
         for (let page = 0; page < 50; page++) {
             const response = await fetch(`/alerts/?limit=100&offset=${page * 100}`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const alerts = await response.json();
+            everyAlert.push(...alerts);
             for (const alert of alerts) {
                 const level = String(alert.severity ?? "").toLowerCase();
                 if (level in counts) counts[level] += 1;
@@ -351,6 +428,7 @@ async function loadSeverityCounts() {
         $("sevMedium").textContent = counts.medium;
         $("sevLow").textContent = counts.low;
         renderSeverityChart(counts);
+        renderTimeChart(everyAlert);
         return true;
     } catch (error) {
         console.error("Failed to load severity counts:", error);
@@ -358,9 +436,12 @@ async function loadSeverityCounts() {
     }
 }
 
-// ---------- Active Alerts panel (newest first, 5 per page) ----------
-const ACTIVE_PAGE_SIZE = 5;
-let activePage = 0;                     // 0 = the newest alerts
+// ---------- Active Alerts panel (the 5 newest alerts, updates by itself) ----------
+const ACTIVE_COUNT = 5;
+const ACTIVE_POLL_MS = 3000;
+let activeLoading = false;
+let activeSignature = null;          // ids currently shown, to redraw only when something changed
+let activeIds = new Set();
 
 function formatAlertTime(value) {
     const date = new Date(value);
@@ -369,83 +450,88 @@ function formatAlertTime(value) {
 }
 
 async function loadActiveAlerts() {
+    if (activeLoading) return true;
+    activeLoading = true;
     try {
         const statsResponse = await fetch("/stats/");
         if (!statsResponse.ok) throw new Error(`HTTP ${statsResponse.status}`);
         const stats = await statsResponse.json();
         const total = Object.values(stats.by_rule ?? {}).reduce((sum, n) => sum + n, 0);
 
-        const pages = Math.max(1, Math.ceil(total / ACTIVE_PAGE_SIZE));
-        activePage = Math.min(activePage, pages - 1);
-        const end = total - activePage * ACTIVE_PAGE_SIZE;           // newest alert is the last row
-        const start = Math.max(0, end - ACTIVE_PAGE_SIZE);
-
         let alerts = [];
         if (total > 0) {
-            const response = await fetch(`/alerts/?limit=${end - start}&offset=${start}`);
+            const start = Math.max(0, total - ACTIVE_COUNT);           // the newest alert is the last row
+            const response = await fetch(`/alerts/?limit=${total - start}&offset=${start}`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             alerts = (await response.json()).reverse();
         }
 
-        const body = $("activeBody");
-        if (alerts.length === 0) {
-            const row = document.createElement("tr");
-            const cell = document.createElement("td");
-            cell.colSpan = 6;
-            cell.className = "text-center text-muted";
-            cell.textContent = "No alerts found.";
-            row.appendChild(cell);
-            body.replaceChildren(row);
-        } else {
-            body.replaceChildren(...alerts.map((alert) => {
+        const signature = alerts.map((alert) => alert.id).join(",");
+        if (signature !== activeSignature) {
+            const firstLoad = activeSignature === null;
+            const body = $("activeBody");
+            if (alerts.length === 0) {
                 const row = document.createElement("tr");
-                row.className = "alert-row-clickable";
-                row.addEventListener("click", () => openAlertDetail(alert.id));
+                const cell = document.createElement("td");
+                cell.colSpan = 5;
+                cell.className = "text-center text-muted";
+                cell.textContent = "No alerts found.";
+                row.appendChild(cell);
+                body.replaceChildren(row);
+            } else {
+                body.replaceChildren(...alerts.map((alert) => {
+                    const row = document.createElement("tr");
+                    row.className = "alert-row-clickable" + (!firstLoad && !activeIds.has(alert.id) ? " row-new" : "");
+                    row.addEventListener("click", () => openAlertDetail(alert.id));
 
-                const dotCell = document.createElement("td");
-                const dot = document.createElement("span");
-                dot.className = `sev-dot dot-${severityClass(alert.severity).replace("tag-", "")}`;
-                dotCell.appendChild(dot);
+                    const timeCell = makeCell(formatAlertTime(alert.event_timestamp));
+                    timeCell.classList.add("text-nowrap");
+                    const severityCell = document.createElement("td");
+                    severityCell.appendChild(severityBadge(alert.severity));
 
-                const severityCell = document.createElement("td");
-                severityCell.appendChild(severityBadge(alert.severity));
-
-                row.append(
-                    makeCell(formatAlertTime(alert.event_timestamp)),
-                    dotCell,
-                    makeCell(alert.rule_name ?? alert.rule_id),
-                    severityCell,
-                    makeCell(alert.source_ip ?? alert.source_type, alert.source_ip ? alert.source_type : null),
-                    makeCell(alert.technique_id, alert.technique_name)
-                );
-                return row;
-            }));
+                    row.append(
+                        timeCell,
+                        makeCell(alert.rule_name ?? alert.rule_id),
+                        severityCell,
+                        makeCell(alert.source_ip ?? alert.source_type, alert.source_ip ? alert.source_type : null),
+                        makeCell(alert.technique_id, alert.technique_name)
+                    );
+                    return row;
+                }));
+            }
+            activeSignature = signature;
+            activeIds = new Set(alerts.map((alert) => alert.id));
         }
 
-        const first = total === 0 ? 0 : activePage * ACTIVE_PAGE_SIZE + 1;
-        const last = Math.min(total, (activePage + 1) * ACTIVE_PAGE_SIZE);
-        $("activeRange").textContent = total === 0 ? "0 alerts" : `${first}-${last} of ${total}`;
-        $("activePrev").disabled = activePage === 0;
-        $("activeNext").disabled = activePage >= pages - 1;
+        $("activeRange").textContent = total === 0
+            ? "0 alerts"
+            : `Latest ${alerts.length} of ${total} · updated ${new Date().toLocaleTimeString()}`;
         return true;
     } catch (error) {
         console.error("Failed to load active alerts:", error);
+        $("activeRange").textContent = "Can't reach the API";
         return false;
+    } finally {
+        activeLoading = false;
     }
 }
 
-$("activePrev").addEventListener("click", () => { activePage = Math.max(0, activePage - 1); loadActiveAlerts(); });
-$("activeNext").addEventListener("click", () => { activePage += 1; loadActiveAlerts(); });
+// The panel keeps itself up to date, whatever the Auto-refresh switch says.
+setInterval(() => { if (!document.hidden) loadActiveAlerts(); }, ACTIVE_POLL_MS);
 
+let refreshing = false;
 async function refreshDashboard() {
+    if (refreshing) return;
+    refreshing = true;
     const button = $("refreshButton");
     button.disabled = true;
     const [statsOk, alertsOk, severityOk, activeOk] = await Promise.all([loadStats(), loadAlerts(), loadSeverityCounts(), loadActiveAlerts()]);
     button.disabled = false;
+    refreshing = false;
 
     if (statsOk && alertsOk && severityOk && activeOk) {
         showError("");
-        $("lastUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        $("lastUpdated").textContent = `Updated ${new Date().toLocaleTimeString()} · refreshes every 5 s`;
     } else {
         showError("Failed to load dashboard data. Check that the API is running, then press Refresh.");
     }
@@ -546,13 +632,8 @@ $("uploadFile").addEventListener("change", () => {
     fillUploadRules();
 });
 $("uploadButton").addEventListener("click", uploadLog);
+$("uploadModal").addEventListener("show.bs.modal", () => { $("uploadResult").className = "d-none"; });
 fillUploadRules();
-
-let autoRefreshTimer = null;
-$("autoRefresh").addEventListener("change", () => {
-    clearInterval(autoRefreshTimer);
-    autoRefreshTimer = $("autoRefresh").checked ? setInterval(refreshDashboard, 5000) : null;
-});
 
 document.addEventListener("themechange", () => {
     applyChartTheme();
@@ -560,3 +641,4 @@ document.addEventListener("themechange", () => {
 });
 
 refreshDashboard();
+setInterval(() => { if (!document.hidden) refreshDashboard(); }, 5000);   // always on

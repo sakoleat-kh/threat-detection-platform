@@ -6,25 +6,22 @@
     <title>Threat Detection Platform</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/dashboard.css" rel="stylesheet">
+    <link href="/static/dashboard.css?v=9" rel="stylesheet">
     <script src="/static/theme.js"></script>
 </head>
 
 <body>
 <div id="topNav"></div>
-<script src="/static/nav.js"></script>
-<header class="app-header text-white py-4 mb-4">
+<script src="/static/nav.js?v=2"></script>
+<header class="app-header text-white py-3 mb-3">
     <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
             <h1 class="h2 mb-1">Threat Detection Platform</h1>
             <p class="mb-0 text-light opacity-75">Security alerts and MITRE ATT&amp;CK monitoring dashboard</p>
         </div>
         <div class="text-end">
+            <button id="addAlertsButton" class="btn btn-outline-light btn-sm me-1" type="button" data-bs-toggle="modal" data-bs-target="#uploadModal" title="Upload a log file">Add Alerts</button>
             <button id="refreshButton" class="btn btn-outline-light btn-sm" type="button">Refresh</button>
-            <div class="form-check form-switch d-inline-block ms-2 text-white">
-                <input class="form-check-input" type="checkbox" role="switch" id="autoRefresh">
-                <label class="form-check-label small" for="autoRefresh">Auto-refresh (5 s)</label>
-            </div>
             <div class="small opacity-75 mt-1" id="lastUpdated">Not loaded yet</div>
         </div>
     </div>
@@ -36,10 +33,10 @@
 
     <!-- Severity cards -->
     <section class="row g-3 mb-3" aria-label="Alerts by severity">
-        <div class="col-6 col-lg-3"><div class="sev-card sev-critical"><span class="sev-icon" aria-hidden="true">&#9888;</span><div><div class="sev-label">Critical Alerts</div><div class="sev-count" id="sevCritical">-</div></div></div></div>
-        <div class="col-6 col-lg-3"><div class="sev-card sev-high"><span class="sev-icon" aria-hidden="true">&#9888;</span><div><div class="sev-label">High Alerts</div><div class="sev-count" id="sevHigh">-</div></div></div></div>
-        <div class="col-6 col-lg-3"><div class="sev-card sev-medium"><span class="sev-icon" aria-hidden="true">&#9873;</span><div><div class="sev-label">Medium Alerts</div><div class="sev-count" id="sevMedium">-</div></div></div></div>
-        <div class="col-6 col-lg-3"><div class="sev-card sev-low"><span class="sev-icon" aria-hidden="true">&#10004;</span><div><div class="sev-label">Low Alerts</div><div class="sev-count" id="sevLow">-</div></div></div></div>
+        <div class="col-6 col-lg-3"><div class="sev-card sev-critical"><div class="sev-count" id="sevCritical">-</div><div class="sev-label">Critical alerts</div></div></div>
+        <div class="col-6 col-lg-3"><div class="sev-card sev-high"><div class="sev-count" id="sevHigh">-</div><div class="sev-label">High alerts</div></div></div>
+        <div class="col-6 col-lg-3"><div class="sev-card sev-medium"><div class="sev-count" id="sevMedium">-</div><div class="sev-label">Medium alerts</div></div></div>
+        <div class="col-6 col-lg-3"><div class="sev-card sev-low"><div class="sev-count" id="sevLow">-</div><div class="sev-label">Low alerts</div></div></div>
     </section>
 
     <!-- Summary cards -->
@@ -72,31 +69,36 @@
     <div class="col-lg-8"><div class="card shadow-sm h-100"><div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="h6 mb-0">Active Alerts</h2>
-            <div class="d-flex align-items-center gap-2">
-                <span id="activeRange" class="small text-muted"></span>
-                <button id="activePrev" class="btn btn-outline-secondary btn-sm" type="button" title="Newer alerts" aria-label="Newer alerts">&#9664;</button>
-                <button id="activeNext" class="btn btn-outline-secondary btn-sm" type="button" title="Older alerts" aria-label="Older alerts">&#9654;</button>
-            </div>
+            <span id="activeRange" class="small text-muted"></span>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead>
-                    <tr><th>Time</th><th></th><th>Alert Type</th><th>Severity</th><th>Source</th><th>MITRE Technique</th></tr>
+                    <tr><th>Time</th><th>Alert Type</th><th>Severity</th><th>Source</th><th>MITRE Technique</th></tr>
                 </thead>
                 <tbody id="activeBody">
-                    <tr><td colspan="6" class="text-center text-muted">Loading alerts...</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted">Loading alerts...</td></tr>
                 </tbody>
             </table>
         </div>
-        <div class="small text-muted mt-2">The newest alerts first, 5 per page. Click a row for details.</div>
+        <div class="small text-muted mt-2">The 5 newest alerts, newest first. This panel updates by itself. Click a row for details.</div>
     </div></div></div>
-    <div class="col-lg-4"><div class="card shadow-sm h-100"><div class="card-body">
-        <h2 class="h6 mb-3">Alert Severity Distribution</h2>
-        <div class="chart-box">
-            <canvas id="severityChart"></canvas>
-            <div class="chart-empty" id="severityChartEmpty">No alerts yet.</div>
-        </div>
-    </div></div></div>
+    <div class="col-lg-4 d-flex flex-column gap-3">
+        <div class="card shadow-sm"><div class="card-body">
+            <h2 class="h6 mb-3">Alerts over time</h2>
+            <div class="chart-box chart-sm">
+                <canvas id="timeChart"></canvas>
+                <div class="chart-empty" id="timeChartEmpty">No alerts yet.</div>
+            </div>
+        </div></div>
+        <div class="card shadow-sm flex-grow-1"><div class="card-body">
+            <h2 class="h6 mb-3">Alert severity distribution</h2>
+            <div class="chart-box chart-sm">
+                <canvas id="severityChart"></canvas>
+                <div class="chart-empty" id="severityChartEmpty">No alerts yet.</div>
+            </div>
+        </div></div>
+    </div>
     </section>
 
     <!-- Charts -->
@@ -122,38 +124,6 @@
                 </div></div>
             </div>
         </div>
-    </div></section>
-
-    <!-- Upload logs -->
-    <section class="card shadow-sm mb-4"><div class="card-body">
-        <h2 class="h6 mb-3">Add Alerts (Upload a Log)</h2>
-        <div class="row g-3">
-            <div class="col-md-4">
-                <label for="uploadFile" class="form-label">Log file</label>
-                <input type="file" id="uploadFile" class="form-control" accept=".log,.txt">
-            </div>
-            <div class="col-md-2">
-                <label for="uploadType" class="form-label">Log type</label>
-                <select id="uploadType" class="form-select">
-                    <option value="auth">auth</option>
-                    <option value="access">access</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="uploadRule" class="form-label">Rule</label>
-                <select id="uploadRule" class="form-select"></select>
-            </div>
-            <div class="col-md-3">
-                <label for="uploadMax" class="form-label">Max new alerts</label>
-                <input type="number" id="uploadMax" class="form-control" min="1" step="1" placeholder="All">
-            </div>
-        </div>
-        <div class="mt-3 d-flex align-items-center gap-2">
-            <button id="uploadButton" class="btn btn-primary" type="button">Upload</button>
-            <span id="uploadSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-        </div>
-        <div id="uploadResult" class="mt-3 d-none" role="status"></div>
-        <div class="small text-muted mt-2">Detection runs on the server. Alerts that are already stored are skipped, so uploading a file twice does not create duplicates.</div>
     </div></section>
 
     <!-- Filters -->
@@ -203,7 +173,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="small text-muted mt-2">Click a row to see the full alert. Shows up to 100 alerts per request.</div>
+        <button id="recentMore" class="btn btn-outline-secondary btn-sm mt-2" type="button" hidden>Show all</button>
+        <div class="small text-muted mt-2">Newest first. Click a row to see the full alert.</div>
     </div></section>
 </main>
 
@@ -220,12 +191,54 @@
     </div>
 </div>
 
+<!-- Add alerts (upload a log) modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Add Alerts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="uploadFile" class="form-label">Log file</label>
+                    <input type="file" id="uploadFile" class="form-control" accept=".log,.txt">
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-4">
+                        <label for="uploadType" class="form-label">Log type</label>
+                        <select id="uploadType" class="form-select">
+                            <option value="auth">auth</option>
+                            <option value="access">access</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-8">
+                        <label for="uploadRule" class="form-label">Rule</label>
+                        <select id="uploadRule" class="form-select"></select>
+                    </div>
+                </div>
+                <div>
+                    <label for="uploadMax" class="form-label">Max new alerts</label>
+                    <input type="number" id="uploadMax" class="form-control" min="1" step="1" placeholder="All">
+                </div>
+                <div id="uploadResult" class="d-none" role="status"></div>
+                <div class="small text-muted mt-3">Alerts that are already stored are skipped.</div>
+            </div>
+            <div class="modal-footer">
+                <span id="uploadSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="uploadButton" class="btn btn-primary" type="button">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer class="app-header text-white py-3">
     <div class="container text-center"><small>Threat Detection Platform</small></div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/static/dashboard.js"></script>
+<script src="/static/dashboard.js?v=9"></script>
 </body>
 </html>

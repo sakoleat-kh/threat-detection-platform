@@ -1,40 +1,49 @@
-/* ===== Light theme (default) ===== */
-body { background: #f1f3f6; }
-.app-header { background: #1b2430; }
-.card { border: 1px solid #dde2e8; }
-.table { --bs-table-bg: transparent; --bs-table-hover-bg: rgba(0, 0, 0, .05); }
-.metric { font-size: 2.25rem; font-weight: 600; line-height: 1.1; }
+/* ===== Base: flat panels, thin borders, small radius ===== */
+:root { --panel: #ffffff; --panel-2: #f7f8fa; --line: #dde2e8; --muted: #6c757d; }
+[data-bs-theme="dark"] {
+    --bs-body-bg: #12151c; --bs-body-color: #e7eaf0; --bs-border-color: #2b3342;
+    --panel: #1b2029; --panel-2: #161a22; --line: #2b3342; --muted: #8d96a8;
+}
+body { background: #f1f3f6; font-size: 14px; }
+[data-bs-theme="dark"] body { background: #12151c; }
+
+.app-header { background: #1b2029; border-bottom: 1px solid #2b3342; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+.card.shadow-sm { box-shadow: none !important; }
+.card .card { background: var(--panel-2); }
+.card-body { padding: 14px 16px; }
+.card h2.h6, .card .h6 { font-weight: 600; }
+.text-muted { color: var(--muted) !important; }
+
+/* ===== Tables: muted headers, light row dividers ===== */
+.table { --bs-table-bg: transparent; --bs-table-hover-bg: rgba(128, 128, 128, .12); font-size: .9rem; }
+.table > thead:not(.table-dark) th { color: var(--muted); font-weight: 500; font-size: .85rem; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.table > tbody td { border-bottom-color: var(--line); padding: .6rem .65rem; }
 .alert-row-clickable { cursor: pointer; }
-.chart-box { position: relative; height: 320px; }
-.chart-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #6c757d; }
 .cell-clip { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
-/* ===== Severity cards (same in both themes) ===== */
-.sev-card { display: flex; align-items: center; gap: .9rem; padding: 1rem 1.25rem; border-radius: .35rem; color: #fff;
-            border: 1px solid rgba(255, 255, 255, .14); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15); }
-.sev-icon { font-size: 2.1rem; line-height: 1; }
-.sev-label { font-size: 1.05rem; font-weight: 600; }
-.sev-count { font-size: 2rem; font-weight: 700; line-height: 1; }
-.sev-critical { background: linear-gradient(180deg, #d32f2f, #8e1c1c); }
-.sev-high { background: linear-gradient(180deg, #f57c1f, #b4540c); }
-.sev-medium { background: linear-gradient(180deg, #f5b014, #b87e06); }
-.sev-low { background: linear-gradient(180deg, #4caf50, #2e7d32); }
+/* ===== Severity cards: solid colour, number first ===== */
+.sev-card { padding: 16px 20px; border-radius: 4px; color: #fff; }
+.sev-count { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.sev-label { font-size: .95rem; }
+.sev-critical { background: #d32f2f; }
+.sev-high { background: #e8590c; }
+.sev-medium { background: #d99a00; color: #1a1a1a; }
+.sev-low { background: #3d8b37; }
 
-/* ===== Severity tags in tables ===== */
-.sev-tag { display: inline-block; padding: .2rem .6rem; border-radius: .25rem; font-weight: 600; font-size: .75rem; color: #fff; }
-.tag-critical { background: #c62828; }
-.tag-high { background: #e8731a; }
-.tag-medium { background: #f0a30a; color: #1a1a1a; }
-.tag-low { background: #3d8f3d; }
+/* ===== Severity pills ===== */
+.sev-tag { display: inline-block; padding: .15rem .7rem; border-radius: 3px; font-weight: 600; font-size: .75rem; color: #fff; text-transform: capitalize; }
+.tag-critical { background: #d32f2f; }
+.tag-high { background: #e8590c; }
+.tag-medium { background: #d99a00; color: #1a1a1a; }
+.tag-low { background: #3d8b37; }
 .tag-unknown { background: #6c757d; }
 
-/* ===== Severity dots (Active Alerts) ===== */
-.sev-dot { display: inline-block; width: .85rem; height: .85rem; border-radius: 50%; vertical-align: middle; }
-.dot-critical { background: #d32f2f; }
-.dot-high { background: #f57c1f; }
-.dot-medium { background: #f5b014; }
-.dot-low { background: #4caf50; }
-.dot-unknown { background: #6c757d; }
+/* ===== Charts and metrics ===== */
+.metric { font-size: 2rem; font-weight: 600; line-height: 1.1; }
+.chart-box { position: relative; height: 320px; }
+.chart-sm { height: 190px; }
+.chart-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: var(--muted); }
 
 /* ===== Top navigation bar (dark in both themes) ===== */
 .topnav { background: #0b101a; border-bottom: 1px solid #263044; }
@@ -46,12 +55,6 @@ body { background: #f1f3f6; }
 .topnav-icon { color: #aeb8c8; text-decoration: none; font-size: .9rem; }
 .topnav-icon:hover { color: #fff; }
 
-/* ===== Dark theme ===== */
-[data-bs-theme="dark"] { --bs-body-bg: #0f1520; --bs-body-color: #dbe3ef; --bs-border-color: #263044; }
-[data-bs-theme="dark"] body { background: #0f1520; }
-[data-bs-theme="dark"] .app-header { background: linear-gradient(180deg, #0b101a, #151c2b); border-bottom: 1px solid #263044; }
-[data-bs-theme="dark"] .card { background: #1a2130; border-color: #263044; }
-[data-bs-theme="dark"] .card .card { background: #151c29; }
-[data-bs-theme="dark"] .card .card h3 { color: #c3cedf !important; }
-[data-bs-theme="dark"] .table { --bs-table-hover-bg: rgba(255, 255, 255, .07); }
-[data-bs-theme="dark"] .chart-empty { color: #8b97ab; }
+/* ===== A new alert in Active Alerts flashes once ===== */
+@keyframes rowflash { from { background: rgba(76, 141, 255, .3); } to { background: transparent; } }
+@media (prefers-reduced-motion: no-preference) { .row-new td { animation: rowflash 2.5s ease-out; } }

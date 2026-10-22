@@ -16,7 +16,6 @@
     host.className = "topnav";
     host.innerHTML = `
         <div class="container-fluid px-4 d-flex align-items-center">
-            <span class="topnav-brand"><span aria-hidden="true">&#9673;</span> TDP</span>
             <ul class="nav topnav-tabs">${links}</ul>
             <div class="ms-auto d-flex align-items-center gap-3">
                 <a class="topnav-icon" href="/docs" target="_blank" rel="noopener" title="API documentation">API Docs</a>
